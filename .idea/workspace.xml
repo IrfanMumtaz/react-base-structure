@@ -2,14 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2cd577e5-6681-4ee9-87b7-28b7ca719748" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/route.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/route.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/layouts/components/sidebar/sidemenu/sidemenu.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/components/sidebar/sidemenu/sidemenu.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/layouts/routes/mainRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/routes/mainRoutes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/redux/constants/auth.constants.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/redux/constants/auth.constants.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/redux/reducers/authorization/auth.reducers.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/redux/reducers/authorization/auth.reducers.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/redux/reducers/authorization/login.reducers.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/redux/reducers/authorization/login.reducers.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/pages/login.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/pages/login.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,7 +77,7 @@
       <workItem from="1585394035522" duration="33405000" />
       <workItem from="1585501126271" duration="4786000" />
       <workItem from="1585510907807" duration="96000" />
-      <workItem from="1585511098032" duration="5370000" />
+      <workItem from="1585511098032" duration="6311000" />
     </task>
     <servers />
   </component>
