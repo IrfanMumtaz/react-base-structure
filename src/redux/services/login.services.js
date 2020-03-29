@@ -20,6 +20,7 @@ function login(username, password) {
     return fetch(`${process.env.REACT_APP_API_URL}v1/auth/get-access-token`, requestOptions)
         .then(handleResponse)
         .then(response => {
+            console.log(response);
             localStorage.setItem('user', JSON.stringify(response.data.authentication.user));
             localStorage.setItem('access_token', JSON.stringify(response.data.authentication.access_token));
             return response;
@@ -35,18 +36,6 @@ function logout() {
 
 function handleResponse(response) {
     return response.text().then(text => {
-        const data = text && JSON.parse(text);
-        if (!response.ok) {
-            if (response.status === 401) {
-                // auto logout if 401 response returned from api
-                logout();
-                window.location.reload(true);
-            }
-
-            const error = (data && data.message) || response.statusText;
-            return Promise.reject(error);
-        }
-
-        return data;
+        return text && JSON.parse(text);
     });
 }

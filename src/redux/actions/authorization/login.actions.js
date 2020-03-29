@@ -11,15 +11,16 @@ export const loginAction = {
 function login(username, password) {
     return dispatch => {
         dispatch(request({ username }));
-        console.log("action called");
         loginService.login(username, password)
             .then(
                 response => {
                     const {authentication} = response.data;
                     dispatch(success(authentication.user));
                     window.location.reload();
+
                 },
                 error => {
+                    console.log(error);
                     dispatch(failure(error.toString()));
                     dispatch(alertActions.error(error.toString()));
                 }

@@ -1,7 +1,7 @@
 import { loginConstants } from '../../constants';
 
 let user = JSON.parse(localStorage.getItem('user'));
-const initialState = user ? { loggedIn: true, user } : { loggedIn: false };
+const initialState = user ? { loggedIn: true, user, invalid: false } : { loggedIn: false, invalid: false };
 
 const Login = (state = initialState, payload) => {
     switch (payload.type) {
@@ -22,6 +22,6 @@ const Login = (state = initialState, payload) => {
         default:
             return state
     }
-}
+};
 
 export default Login;

@@ -8,8 +8,8 @@ import {
    Form,
    FormGroup,
    Button,
-   Card,   
-   CardBody,
+   Card,
+   CardBody, Alert,
 } from "reactstrap";
 import { loginAction } from "../../redux/actions";
 import { store } from "../../redux/storeConfig/store";
@@ -27,7 +27,14 @@ class Login extends Component {
          inputEmail: '',
          inputPass: '',
          submitted: false,
+         alert: {
+            display: false,
+            type: "success",
+            message: ""
+         }
       };
+
+      console.log(this.state);
 
    }
 
@@ -47,9 +54,45 @@ class Login extends Component {
       this.setState({ submitted: true });
       const { inputEmail, inputPass } = this.state;
       if (inputEmail && inputPass) {
-         this.props.login(inputEmail, inputPass);
+
+         const requestOptions = {
+            method: 'Post',
+            headers: {
+               'Content-Type': 'application/json',
+               'Client-ID': process.env.REACT_APP_API_CLIENT,
+               'Client-Secret': process.env.REACT_APP_API_SECRET,
+               'Accept': '*/*'
+            },
+            body: JSON.stringify({username: inputEmail, password: inputPass})
+         };
+
+         fetch(`${process.env.REACT_APP_API_URL}v1/auth/get-access-token`, requestOptions)
+             .then(this.handleResponse)
+             .then(response => {
+                console.log(response);
+                if(response.success === true){
+                   localStorage.setItem('access_token', JSON.stringify(response.data.authentication.access_token));
+                   localStorage.setItem('user', JSON.stringify(response.data.authentication.user));
+                   window.location.reload();
+                }
+                else{
+                   const alert = {
+                      type: "danger",
+                      message: response.error.message,
+                      display: true
+                   };
+                   this.setState({alert});
+                }
+                return response;
+             });
       }
    };
+
+   handleResponse(response) {
+      return response.text().then(text => {
+         return text && JSON.parse(text);
+      });
+   }
 
    handleResetForm = () => {
       this.setState({
@@ -58,7 +101,7 @@ class Login extends Component {
       });
       document.getElementById("loginForm").reset();
 
-   }
+   };
 
    render() {
       if (this.isLoggedIn() === true) {
@@ -108,6 +151,11 @@ class Login extends Component {
                                  <Button type="button" color="secondary" block className="btn-raised" onClick={this.handleResetForm}>
                                     Cancel
                                  </Button>
+                                 {   this.state.alert.display &&
+                                 <Alert color={this.state.alert.type} >
+                                    {this.state.alert.message}
+                                 </Alert>
+                                 }
                               </Col>
                            </FormGroup>
                         </Form>
@@ -120,15 +168,4 @@ class Login extends Component {
    }
 }
 
-function mapState(state) {
-   const { loggingIn, logout } = state.authentication;
-   return { loggingIn, logout };
-}
-
-const actionCreators = {
-   login: loginAction.login,
-   logout: loginAction.logout
-};
-
-Login = connect(mapState, actionCreators)(Login);
 export default Login;
