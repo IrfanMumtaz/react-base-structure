@@ -8,7 +8,6 @@ import {store} from "../../redux/storeConfig/store"
 
 const MainLayoutRoute = ({ render, ...rest }) => {
     const { Login } = store.getState().authentication;
-    console.log(Login);
     return (
 
       <Route

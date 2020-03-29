@@ -8,6 +8,7 @@ import FullPageLayout from "../layouts/routes/fullpageRoutes";
 import {store} from "../redux/storeConfig/store";
 
 const LazyLogin = lazy(() => import("../views/pages/login"));
+const LazyLogoutView = lazy(() => import("../views/pages/logout"));
 const LazyAnalyticsDashboard = lazy(() => import("../views/dashboard/ticketInsurance"));
 const LazyEmail = lazy(() => import("../views/email/email"));
 
@@ -50,7 +51,6 @@ class Route extends Component {
 
     render(){
         const { Login } = store.getState().authentication;
-        console.log(Login);
         return(
         <BrowserRouter basename="/">
             <Switch>
@@ -63,6 +63,17 @@ class Route extends Component {
                             </Suspense>
                         )}
                     />
+
+                <MainLayoutRoutes
+                    exact
+                    path="/logout"
+                    render={matchprops => (
+                        <Suspense fallback={<Spinner/>}>
+                            <LazyLogoutView {...matchprops} />
+                        </Suspense>
+                    )}
+                />
+
                 <MainLayoutRoutes
                     exact
                     path="/"

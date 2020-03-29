@@ -1,6 +1,8 @@
 import { loginConstants } from '../../constants';
 
-let user = JSON.parse(localStorage.getItem('user'));
+let user = localStorage.getItem('user');
+if(user) user = JSON.parse(atob(user));
+
 const initialState = user ? { loggedIn: true, user, invalid: false } : { loggedIn: false, invalid: false };
 
 const Login = (state = initialState, payload) => {

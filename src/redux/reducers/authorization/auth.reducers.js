@@ -1,8 +1,13 @@
 import { authConstants } from '../../constants';
 
-const user = JSON.parse(localStorage.getItem('user'));
-const token = JSON.parse(localStorage.getItem('access_token'));
-const initialState = user ? { token, user } : {};
+let user = localStorage.getItem('user');
+if(user) user = JSON.parse((atob(user)));
+let token = localStorage.getItem('access_token');
+if(token) token = atob(token);
+let permissions = localStorage.getItem('acl');
+if(permissions) permissions = atob(permissions);
+
+const initialState = user ? { token, user, permissions } : {};
 const Auth = (state = initialState, action) => {
     switch (action.type) {
         case authConstants.AUTH:
@@ -12,6 +17,10 @@ const Auth = (state = initialState, action) => {
         case authConstants.TOKEN:
             return {
                 token: action.token
+            };
+        case authConstants.PERMISSIONS:
+            return {
+                token: action.permissions
             };
         default:
             return state

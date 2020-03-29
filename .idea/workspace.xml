@@ -2,13 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2cd577e5-6681-4ee9-87b7-28b7ca719748" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/route.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/route.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/layouts/components/sidebar/sidemenu/sidemenu.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/components/sidebar/sidemenu/sidemenu.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/routes/mainRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/routes/mainRoutes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/redux/actions/authorization/login.actions.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/redux/actions/authorization/login.actions.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/redux/constants/auth.constants.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/redux/constants/auth.constants.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/redux/reducers/authorization/auth.reducers.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/redux/reducers/authorization/auth.reducers.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/redux/reducers/authorization/login.reducers.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/redux/reducers/authorization/login.reducers.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/redux/services/login.services.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/redux/services/login.services.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/views/pages/login.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/pages/login.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -43,7 +43,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/views" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/views/pages" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -55,11 +55,11 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/views/pages" />
       <recent name="$PROJECT_DIR$/src/views" />
       <recent name="$PROJECT_DIR$/src/views/access-control-list" />
       <recent name="$PROJECT_DIR$/src/views/booths" />
       <recent name="$PROJECT_DIR$/src/views/merchants" />
-      <recent name="$PROJECT_DIR$/src/views/vehicles" />
     </key>
   </component>
   <component name="RunAnythingCache">
@@ -81,7 +81,9 @@
       <workItem from="1585331673755" duration="10855000" />
       <workItem from="1585389107638" duration="2451000" />
       <workItem from="1585394035522" duration="33405000" />
-      <workItem from="1585501126271" duration="4670000" />
+      <workItem from="1585501126271" duration="4786000" />
+      <workItem from="1585510907807" duration="96000" />
+      <workItem from="1585511098032" duration="5370000" />
     </task>
     <servers />
   </component>
@@ -101,9 +103,9 @@
       <screen x="55" y="27" width="1865" height="1053" />
     </state>
     <state x="651" y="253" key="run.anything.popup/55.27.1865.1053@55.27.1865.1053" timestamp="1585415531158" />
-    <state x="650" y="257" width="672" height="678" key="search.everywhere.popup" timestamp="1585504873141">
+    <state x="650" y="257" width="672" height="678" key="search.everywhere.popup" timestamp="1585523356288">
       <screen x="55" y="27" width="1865" height="1053" />
     </state>
-    <state x="650" y="257" width="672" height="678" key="search.everywhere.popup/55.27.1865.1053@55.27.1865.1053" timestamp="1585504873141" />
+    <state x="650" y="257" width="672" height="678" key="search.everywhere.popup/55.27.1865.1053@55.27.1865.1053" timestamp="1585523356288" />
   </component>
 </project>

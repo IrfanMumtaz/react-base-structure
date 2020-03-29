@@ -71,8 +71,9 @@ class Login extends Component {
              .then(response => {
                 console.log(response);
                 if(response.success === true){
-                   localStorage.setItem('access_token', JSON.stringify(response.data.authentication.access_token));
-                   localStorage.setItem('user', JSON.stringify(response.data.authentication.user));
+                   localStorage.setItem('access_token', btoa(response.data.authentication.access_token));
+                   localStorage.setItem('user', btoa(JSON.stringify(response.data.authentication.user)));
+                   localStorage.setItem('acl', btoa(JSON.stringify(response.data.authentication.permissions)));
                    window.location.reload();
                 }
                 else{
