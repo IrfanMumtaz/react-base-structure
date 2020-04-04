@@ -198,7 +198,7 @@ class Create extends Component {
                                                         <Col md="6">
                                                             <FormGroup>
                                                                 <Label for="model">Gender</Label>
-                                                                <select onChange={handleChange} id="type" name="type" className={`form-control ${errors.type && touched.type && 'is-invalid'}`}>
+                                                                <select onChange={this.handleChange} id="gender" name="gender" className={`form-control ${errors.type && touched.type && 'is-invalid'}`}>
                                                                     <option value="" defaultValue="" disabled="">Select Gender</option>
                                                                     <option value="M" selected={values.gender === 'M'}>Male</option>
                                                                     <option value="F" selected={values.gender === 'F'}>Female</option>

@@ -3,10 +3,11 @@ import config from "../../app/config";
 import {store} from "../../redux/storeConfig/store";
 import ContentHeader from "../../components/contentHead/contentHeader";
 import {Alert, Button, Card, CardBody, CardTitle, Col, FormGroup, Input, Label, Row} from "reactstrap";
-import {CheckSquare, FileText, Info, Mail, X, Home} from "react-feather";
+import {CheckSquare, FileText, Info, Mail, X, Home, Phone} from "react-feather";
 import { useForm } from 'react-hook-form'
 import {Field, Formik, Form} from "formik";
 import * as Yup from "yup";
+import Select from "react-select";
 
 const formSchema = Yup.object().shape({
     code: Yup.string().max(50, "Too long, max 50 characters").required("Required"),
@@ -20,6 +21,15 @@ const formSchema = Yup.object().shape({
     kin_contact: Yup.string().max(50, "Too long, max 50 characters").required("Required"),
     pickup_add: Yup.string().max(190, "Pickup address too long.").required("Required"),
     dropoff_add: Yup.string().max(190, "Dropoff address too long.").required("Required"),
+    name: Yup.string().max(50, "Too long, max 50 characters").required("Required"),
+    father_name: Yup.string().max(50, "Too long, max 50 characters").required("Required"),
+    cnic: Yup.number().required("Required").nullable(),
+    gender: Yup.string().max(1, "Something odd happened, can not process further").required("Required"),
+    phone: Yup.number().required("Required"),
+    email: Yup.string().email().required("Required"),
+    full_address: Yup.string().required("Required").max(190, "Address too long"),
+    latitude: Yup.number().required("Required").nullable(),
+    longitude: Yup.number().required("Required").nullable(),
 });
 
 class Edit extends Component {
@@ -38,6 +48,17 @@ class Edit extends Component {
             passenger_id: null,
             pickup_add: '',
             dropoff_add: '',
+            name: '',
+            father_name: '',
+            cnic: null,
+            gender: 'M',
+            phone: null,
+            email: '',
+            s_phone: null,
+            s_email: null,
+            full_address: '',
+            latitude: 54.2211,
+            longitude: 54.2211,
             merchant:{
                 id: null,
                 name: ''
@@ -54,7 +75,10 @@ class Edit extends Component {
             }
         },
         passengers: [],
+        passengersData: [],
+        passengerDefault: {},
         STATUS: new Array("Expired", 'Active', "Refunded", "Claimed"),
+        passengerCreate: true,
         alert: {
             display: false,
             type: "success",
@@ -80,7 +104,8 @@ class Edit extends Component {
             .then(response => {
                 if(response.success === true){
                     const {passengers} = response.data;
-                    this.setState({passengers });
+                    const passengersData = passengers.map(p => ({"value": p.id, "label": `${p.name} (${p.cnic})`}));
+                    this.setState({passengers, passengersData });
                 }
                 return response;
             });
@@ -88,7 +113,7 @@ class Edit extends Component {
 
     getTicket = async () => {
         const { id } = this.props.match.params;
-        const { formValues } = this.state;
+        const { formValues, passengers, passengersData } = this.state;
         const requestOptions = {
             method: 'GET',
             headers: {
@@ -100,12 +125,22 @@ class Edit extends Component {
             .then(this.handleResponse)
             .then(response => {
                 if(response.success === true){
+                    const passenger = passengers.filter(p => p.id === response.data.ticket.passenger_id);
+                    console.log(passenger);
+                    const passengerDefault = passengersData.filter(p => p.value === response.data.ticket.passenger_id);
                     let formValues = response.data.ticket;
                     formValues.merchant_id = formValues.merchant.id;
                     formValues.passenger_id = formValues.passenger.id;
                     formValues.pickup_add = formValues.pickup.full_address;
                     formValues.dropoff_add = formValues.dropoff.full_address;
-                    this.setState({formValues });
+                    // formValues.name = passenger[0].name;
+                    // formValues.father_name = passenger[0].father_name;
+                    // formValues.cnic = passenger[0].cnic;
+                    // formValues.gender = passenger[0].gender;
+                    // formValues.phone = passenger[0].primary_contact.phone;
+                    // formValues.email = passenger[0].primary_contact.email;
+                    // formValues.full_address = passenger[0].address.full_address;
+                    this.setState({formValues, passengerDefault });
                 }
                 return response;
             });
@@ -181,8 +216,50 @@ class Edit extends Component {
         document.getElementById("form").reset();
     };
 
+    handlePassengerSelect = option => {
+        const { formValues, passengers } = this.state;
+        if(option){
+
+
+            const passenger = passengers.filter(p => p.id === option.value);
+            console.log(passenger);
+            this.setState({formValues: {
+                    ...formValues,
+                    passenger_id: option.value,
+                    name: passenger[0].name,
+                    father_name: passenger[0].father_name,
+                    cnic: passenger[0].cnic,
+                    gender: passenger[0].gender,
+                    phone: passenger[0].primary_contact.phone,
+                    email: passenger[0].primary_contact.email,
+                    full_address: passenger[0].address.full_address,
+                }});
+
+            this.setState({
+                passengerCreate: true
+            });
+        }
+        else{
+            this.setState({formValues: {
+                    ...formValues,
+                    passenger_id: null,
+                    name: '',
+                    father_name: '',
+                    cnic: '',
+                    gender: '',
+                    phone: '',
+                    email: '',
+                    full: ''
+                }});
+
+            this.setState({
+                passengerCreate: true
+            });
+        }
+    };
+
     render() {
-        const {STATUS, formValues, passengers} = this.state;
+        const {STATUS, formValues, passengers, passengersData, passengerCreate, passengerDefault} = this.state;
         return (
             <Fragment>
                 <ContentHeader>Ticket Update </ContentHeader>
@@ -219,18 +296,93 @@ class Edit extends Component {
                                                 <Col md="6">
                                                     <FormGroup>
                                                         <Label for="passenger_id">Passenger</Label>
-                                                        <select onChange={handleChange} id="passenger_id" name="passenger_id" className={`form-control ${errors.passenger_id && touched.passenger_id && 'is-invalid'}`}>
-                                                            <option value="0" defaultValue="" disabled="">Select Passenger</option>
-                                                            {
-                                                                passengers.map((passenger) => (
-                                                                    <option value={passenger.id} key={passenger.id} selected={passenger.id === formValues.passenger.id}>{`${passenger.name} (${passenger.cnic})`}</option>
-                                                                ))
-                                                            }
-                                                        </select>
+                                                        <Select
+                                                            className={`basic-single ${errors.passenger_id && touched.passenger_id && 'is-invalid'}`}
+                                                            classNamePrefix="select"
+                                                            defaultValue={passengerDefault}
+                                                            isDisabled={false}
+                                                            isLoading={false}
+                                                            isClearable={true}
+                                                            isRtl={false}
+                                                            isSearchable={true}
+                                                            onChange={this.handlePassengerSelect}
+                                                            name="passenger_id"
+                                                            id="passenger_id"
+                                                            options={passengersData}
+                                                        />
                                                         {errors.passenger_id && touched.passenger_id ? <div className="invalid-feedback">{errors.passenger_id}</div> : null}
                                                     </FormGroup>
                                                 </Col>
                                             </Row>
+
+                                            <h4 className="form-section"><Phone size={20} color="#212529" /> Passenger Info</h4>
+
+                                            <Row>
+                                                <Col md="6">
+                                                    <FormGroup>
+                                                        <Label for="name">Passenger Name</Label>
+                                                        <Field name="name" id="name" value={values.name} disabled={passengerCreate} className={`form-control ${errors.name && touched.name && 'is-invalid'}`}/>
+                                                        {errors.name && touched.name ? <div className="invalid-feedback">{errors.name}</div> : null}
+                                                    </FormGroup>
+                                                </Col>
+                                                <Col md="6">
+                                                    <FormGroup>
+                                                        <Label for="father_name">Passenger Father Name</Label>
+                                                        <Field name="father_name" id="father_name" value={values.father_name} disabled={passengerCreate} className={`form-control ${errors.father_name && touched.father_name && 'is-invalid'}`}/>
+                                                        {errors.father_name && touched.father_name ? <div className="invalid-feedback">{errors.father_name}</div> : null}
+                                                    </FormGroup>
+                                                </Col>
+                                            </Row>
+                                            <Row>
+                                                <Col md="6">
+                                                    <FormGroup>
+                                                        <Label for="cnic">CNIC</Label>
+                                                        <Field id="cnic"   name="cnic" value={values.cnic} disabled={passengerCreate} className={`form-control ${errors.cnic && touched.cnic && 'is-invalid'}`} />
+                                                        {errors.cnic && touched.cnic ? <div className="invalid-feedback">{errors.cnic}</div> : null}
+                                                    </FormGroup>
+                                                </Col>
+                                                <Col md="6">
+                                                    <FormGroup>
+                                                        <Label for="model">Gender</Label>
+                                                        <select onChange={handleChange} id="gender" name="gender" disabled={passengerCreate} className={`form-control ${errors.type && touched.type && 'is-invalid'}`}>
+                                                            <option value="" defaultValue="" disabled="">Select Gender</option>
+                                                            <option value="M" selected={values.gender === 'M'}>Male</option>
+                                                            <option value="F" selected={values.gender === 'F'}>Female</option>
+                                                        </select>
+                                                        {errors.model && touched.model ? <div className="invalid-feedback">{errors.model}</div> : null}
+                                                    </FormGroup>
+                                                </Col>
+                                            </Row>
+
+
+                                            <Row>
+                                                <Col md="6">
+                                                    <FormGroup>
+                                                        <Label for="phone">Primary Phone</Label>
+                                                        <Field name="phone" id="phone" value={values.phone} disabled={passengerCreate} className={`form-control ${errors.phone && touched.phone && 'is-invalid'}`} />
+                                                        {errors.phone && touched.phone ? <div className="invalid-feedback">{errors.phone}</div> : null}
+                                                    </FormGroup>
+                                                </Col>
+                                                <Col md="6">
+                                                    <FormGroup>
+                                                        <Label for="email">Primary Email</Label>
+                                                        <Field name="email" id="email" value={values.email} disabled={passengerCreate} className={`form-control ${errors.email && touched.email && 'is-invalid'}`} />
+                                                        {errors.email && touched.email ? <div className="invalid-feedback">{errors.email}</div> : null}
+                                                    </FormGroup>
+                                                </Col>
+                                            </Row>
+
+
+                                            <Row>
+                                                <Col md="12">
+                                                    <FormGroup>
+                                                        <Label for="full_address">Address</Label>
+                                                        <Field name="full_address" id="full_address" value={values.full_address} disabled={passengerCreate} className={`form-control ${errors.full_address && touched.full_address && 'is-invalid'}`} />
+                                                        {errors.full_address && touched.full_address ? <div className="invalid-feedback">{errors.full_address}</div> : null}
+                                                    </FormGroup>
+                                                </Col>
+                                            </Row>
+                                            <h4 className="form-section"><Home size={20} color="#212529" /> Ticket Info</h4>
 
                                             <Row>
                                                 <Col md="4">
