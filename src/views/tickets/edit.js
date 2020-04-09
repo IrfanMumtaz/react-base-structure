@@ -1,150 +1,230 @@
 import React, { Component, Fragment } from "react";
 import config from "../../app/config";
-import {store} from "../../redux/storeConfig/store";
+import { store } from "../../redux/storeConfig/store";
 import ContentHeader from "../../components/contentHead/contentHeader";
-import {Alert, Button, Card, CardBody, CardTitle, Col, FormGroup, Input, Label, Row} from "reactstrap";
-import {CheckSquare, FileText, Info, Mail, X, Home, Phone} from "react-feather";
-import { useForm } from 'react-hook-form'
-import {Field, Formik, Form} from "formik";
+import {
+    Alert,
+    Button,
+    Card,
+    CardBody,
+    Col,
+    FormGroup,
+    Input,
+    Label,
+    Row,
+} from "reactstrap";
+import { CheckSquare, Home, Phone } from "react-feather";
+import { Field, Formik, Form } from "formik";
 import * as Yup from "yup";
 import Select from "react-select";
 
 const formSchema = Yup.object().shape({
-    code: Yup.string().max(50, "Too long, max 50 characters").required("Required"),
+    code: Yup.string()
+        .max(50, "Too long, max 50 characters")
+        .required("Required"),
     merchant_id: Yup.number().required("Required"),
     passenger_id: Yup.number().required("Required"),
     issuance: Yup.date().required("Required"),
     expiry: Yup.date().required("Required"),
-    status: Yup.number().max(3).min(0).required("Required"),
-    kin_name: Yup.string().max(50, "Too long, max 50 characters").required("Required"),
-    kin_relation: Yup.string().max(50, "Too long, max 50 characters").required("Required"),
-    kin_contact: Yup.string().max(50, "Too long, max 50 characters").required("Required"),
-    pickup_add: Yup.string().max(190, "Pickup address too long.").required("Required"),
-    dropoff_add: Yup.string().max(190, "Dropoff address too long.").required("Required"),
-    name: Yup.string().max(50, "Too long, max 50 characters").required("Required"),
-    father_name: Yup.string().max(50, "Too long, max 50 characters").required("Required"),
-    cnic: Yup.number().required("Required").nullable(),
-    gender: Yup.string().max(1, "Something odd happened, can not process further").required("Required"),
+    status: Yup.number()
+        .max(3)
+        .min(0)
+        .required("Required"),
+    kin_name: Yup.string()
+        .max(50, "Too long, max 50 characters")
+        .required("Required"),
+    kin_relation: Yup.string()
+        .max(50, "Too long, max 50 characters")
+        .required("Required"),
+    kin_contact: Yup.string()
+        .max(50, "Too long, max 50 characters")
+        .required("Required"),
+    pickup_add: Yup.string()
+        .max(190, "Pickup address too long.")
+        .required("Required"),
+    dropoff_add: Yup.string()
+        .max(190, "Dropoff address too long.")
+        .required("Required"),
+    name: Yup.string()
+        .max(50, "Too long, max 50 characters")
+        .required("Required"),
+    father_name: Yup.string()
+        .max(50, "Too long, max 50 characters")
+        .required("Required"),
+    cnic: Yup.number()
+        .required("Required")
+        .nullable(),
+    gender: Yup.string()
+        .max(1, "Something odd happened, can not process further")
+        .required("Required"),
     phone: Yup.number().required("Required"),
-    email: Yup.string().email().required("Required"),
-    full_address: Yup.string().required("Required").max(190, "Address too long"),
-    latitude: Yup.number().required("Required").nullable(),
-    longitude: Yup.number().required("Required").nullable(),
+    email: Yup.string()
+        .email()
+        .required("Required"),
+    full_address: Yup.string()
+        .required("Required")
+        .max(190, "Address too long"),
+    latitude: Yup.number().nullable(),
+    longitude: Yup.number().nullable(),
 });
 
 class Edit extends Component {
-
     state = {
         auth: store.getState().authentication.Auth,
         formValues: {
-            code: '',
-            issuance: '',
-            expiry: '',
+            code: "",
+            issuance: "",
+            expiry: "",
             status: null,
-            kin_name: '',
-            kin_relation: '',
-            kin_contact: '',
+            kin_name: "",
+            kin_relation: "",
+            kin_contact: "",
             merchant_id: null,
             passenger_id: null,
-            pickup_add: '',
-            dropoff_add: '',
-            name: '',
-            father_name: '',
+            pickup_add: "",
+            dropoff_add: "",
+            name: "",
+            father_name: "",
             cnic: null,
-            gender: 'M',
+            gender: "M",
             phone: null,
-            email: '',
+            email: "",
             s_phone: null,
             s_email: null,
-            full_address: '',
+            full_address: "",
             latitude: 54.2211,
             longitude: 54.2211,
-            merchant:{
+            merchant: {
                 id: null,
-                name: ''
+                name: "",
             },
-            passenger:{
+            passenger: {
                 id: null,
-                name: ''
+                name: "",
             },
             pickup: {
-                full_address: ''
+                full_address: "",
             },
             dropoff: {
-                full_address: ''
-            }
+                full_address: "",
+            },
         },
         passengers: [],
+        vehicles: [],
         passengersData: [],
+        vehiclesData: [],
         passengerDefault: {},
-        STATUS: new Array("Expired", 'Active', "Refunded", "Claimed"),
+        vehicleDefault: [],
+        STATUS: new Array("Expired", "Active", "Refunded", "Claimed"),
         passengerCreate: true,
         alert: {
             display: false,
             type: "success",
-            message: ""
-        }
+            message: "",
+        },
     };
 
-    componentWillMount() {
+    componentDidMount() {
+        this.getVehicles();
         this.getPassengers();
-        this.getTicket();
     }
 
     getPassengers = async () => {
         const requestOptions = {
-            method: 'GET',
+            method: "GET",
             headers: {
-                'Content-Type': 'application/json',
-                "Authorization": `Bearer ${this.state.auth.token}`
-            }
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${this.state.auth.token}`,
+            },
         };
         fetch(`${config.base_url}v1/passenger`, requestOptions)
             .then(this.handleResponse)
-            .then(response => {
-                if(response.success === true){
-                    const {passengers} = response.data;
-                    const passengersData = passengers.map(p => ({"value": p.id, "label": `${p.name} (${p.cnic})`}));
-                    this.setState({passengers, passengersData });
+            .then((response) => {
+                if (response.success === true) {
+                    const { passengers } = response.data;
+                    const passengersData = passengers.map((p) => ({
+                        value: p.id,
+                        label: `${p.name} (${p.cnic})`,
+                    }));
+                    this.setState({ passengers, passengersData });
+                }
+                this.getTicket();
+                return response;
+            });
+    };
+
+    getVehicles = async () => {
+        const requestOptions = {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${this.state.auth.token}`,
+            },
+        };
+        fetch(`${config.base_url}v1/vehicle`, requestOptions)
+            .then(this.handleResponse)
+            .then((response) => {
+                if (response.success === true) {
+                    const { vehicles } = response.data;
+                    const vehiclesData = vehicles.map((p) => ({
+                        value: p.id,
+                        label: `${p.name}`,
+                    }));
+                    this.setState({ vehicles, vehiclesData });
                 }
                 return response;
             });
     };
 
-    getTicket = async () => {
+    getTicket() {
         const { id } = this.props.match.params;
-        const { formValues, passengers, passengersData } = this.state;
+        const {
+            formValues,
+            passengers,
+            passengersData,
+            vehiclesData,
+        } = this.state;
         const requestOptions = {
-            method: 'GET',
+            method: "GET",
             headers: {
-                'Content-Type': 'application/json',
-                "Authorization": `Bearer ${this.state.auth.token}`
-            }
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${this.state.auth.token}`,
+            },
         };
         fetch(`${config.base_url}v1/ticket/${id}`, requestOptions)
             .then(this.handleResponse)
-            .then(response => {
-                if(response.success === true){
-                    const passenger = passengers.filter(p => p.id === response.data.ticket.passenger_id);
-                    console.log(passenger);
-                    const passengerDefault = passengersData.filter(p => p.value === response.data.ticket.passenger_id);
+            .then((response) => {
+                if (response.success === true) {
+                    const passenger = passengers.filter(
+                        (p) => p.id === response.data.ticket.passenger.id
+                    );
+                    const passengerDefault = passengersData.filter(
+                        (p) => p.value === response.data.ticket.passenger.id
+                    );
+                    const vehicleDefault = vehiclesData.filter(
+                        (v) => v.value === response.data.ticket.vehicle.id
+                    );
                     let formValues = response.data.ticket;
                     formValues.merchant_id = formValues.merchant.id;
                     formValues.passenger_id = formValues.passenger.id;
                     formValues.pickup_add = formValues.pickup.full_address;
                     formValues.dropoff_add = formValues.dropoff.full_address;
-                    // formValues.name = passenger[0].name;
-                    // formValues.father_name = passenger[0].father_name;
-                    // formValues.cnic = passenger[0].cnic;
-                    // formValues.gender = passenger[0].gender;
-                    // formValues.phone = passenger[0].primary_contact.phone;
-                    // formValues.email = passenger[0].primary_contact.email;
-                    // formValues.full_address = passenger[0].address.full_address;
-                    this.setState({formValues, passengerDefault });
+                    formValues.name = passenger[0].name;
+                    formValues.father_name = passenger[0].father_name;
+                    formValues.cnic = passenger[0].cnic;
+                    formValues.gender = passenger[0].gender;
+                    formValues.phone = passenger[0].primary_contact.phone;
+                    formValues.email = passenger[0].primary_contact.email;
+                    formValues.full_address = passenger[0].address.full_address;
+                    this.setState({
+                        formValues,
+                        passengerDefault,
+                        vehicleDefault,
+                    });
                 }
                 return response;
             });
-    };
+    }
 
     updateTicket = async () => {
         const { id } = this.props.match.params;
@@ -161,69 +241,63 @@ class Edit extends Component {
             longitude: 54.2211,
         };
 
-        console.log(formValues);
-
-
         const requestOptions = {
-            method: 'PUT',
+            method: "PUT",
             headers: {
-                'Content-Type': 'application/json',
-                "Authorization": `Bearer ${this.state.auth.token}`
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${this.state.auth.token}`,
             },
-            body: JSON.stringify(formValues)
+            body: JSON.stringify(formValues),
         };
         fetch(`${config.base_url}v1/ticket/${id}`, requestOptions)
             .then(this.handleResponse)
-            .then(response => {
-                if(response.success === true){
+            .then((response) => {
+                if (response.success === true) {
                     const alert = {
                         type: "success",
                         message: response.message,
-                        display: true
+                        display: true,
                     };
-                    this.setState({alert});
-                }
-                else{
+                    this.setState({ alert });
+                } else {
                     const alert = {
                         type: "danger",
                         message: response.error.message,
-                        display: true
+                        display: true,
                     };
-                    this.setState({alert});
+                    this.setState({ alert });
                 }
                 return response;
             });
     };
 
     handleResponse(response) {
-        return response.text().then(text => {
+        return response.text().then((text) => {
             return text && JSON.parse(text);
         });
     }
 
-    handleSubmit = e => {
+    handleSubmit = (e) => {
         this.updateTicket();
     };
 
-    handleChange = e => {
+    handleChange = (e) => {
         const { formValues } = this.state;
         formValues[e.target.name] = e.target.value;
 
-        this.setState({formValues})
+        this.setState({ formValues });
     };
 
     handleResetForm = () => {
         document.getElementById("form").reset();
     };
 
-    handlePassengerSelect = option => {
+    handlePassengerSelect = (option) => {
         const { formValues, passengers } = this.state;
-        if(option){
-
-
-            const passenger = passengers.filter(p => p.id === option.value);
-            console.log(passenger);
-            this.setState({formValues: {
+        if (option) {
+            const passenger = passengers.filter((p) => p.id === option.value);
+            this.setState({
+                formValues: {
                     ...formValues,
                     passenger_id: option.value,
                     name: passenger[0].name,
@@ -233,33 +307,63 @@ class Edit extends Component {
                     phone: passenger[0].primary_contact.phone,
                     email: passenger[0].primary_contact.email,
                     full_address: passenger[0].address.full_address,
-                }});
+                },
+            });
 
             this.setState({
-                passengerCreate: true
+                passengerCreate: true,
             });
-        }
-        else{
-            this.setState({formValues: {
+        } else {
+            this.setState({
+                formValues: {
                     ...formValues,
                     passenger_id: null,
-                    name: '',
-                    father_name: '',
-                    cnic: '',
-                    gender: '',
-                    phone: '',
-                    email: '',
-                    full: ''
-                }});
+                    name: "",
+                    father_name: "",
+                    cnic: "",
+                    gender: "",
+                    phone: "",
+                    email: "",
+                    full: "",
+                },
+            });
 
             this.setState({
-                passengerCreate: true
+                passengerCreate: true,
+            });
+        }
+    };
+
+    handleVehicleSelect = (option) => {
+        const { formValues, vehicles } = this.state;
+        if (option) {
+            this.setState({
+                formValues: {
+                    ...formValues,
+                    vehicle_id: option.value,
+                },
+            });
+        } else {
+            this.setState({
+                formValues: {
+                    ...formValues,
+                    passenger_id: null,
+                },
             });
         }
     };
 
     render() {
-        const {STATUS, formValues, passengers, passengersData, passengerCreate, passengerDefault} = this.state;
+        const {
+            STATUS,
+            formValues,
+            passengers,
+            passengersData,
+            vehiclesData,
+            passengerCreate,
+            passengerDefault,
+            vehicleDefault,
+        } = this.state;
         return (
             <Fragment>
                 <ContentHeader>Ticket Update </ContentHeader>
@@ -273,203 +377,666 @@ class Edit extends Component {
                                         enableReinitialize={true}
                                         initialValues={formValues}
                                         validationSchema={formSchema}
-                                        onSubmit={(data, {setSubmitting, resetForm}) => {
+                                        onSubmit={(
+                                            data,
+                                            { setSubmitting, resetForm }
+                                        ) => {
                                             setSubmitting(true);
-                                            this.setState({formValues: data});
+                                            this.setState({ formValues: data });
                                             this.handleSubmit();
                                             setSubmitting(false);
                                             resetForm();
                                         }}
                                     >
-                                        {({ values, isSubmitting, errors, touched, handleChange}) => (
+                                        {({
+                                            values,
+                                            isSubmitting,
+                                            errors,
+                                            touched,
+                                            handleChange,
+                                        }) => (
                                             <Form id="form">
-                                        <div className="form-body">
-                                            <h4 className="form-section"><Home size={20} color="#212529" /> Ticket Info</h4>
-                                            <Row>
-                                                <Col md="6">
-                                                    <FormGroup>
-                                                        <Label for="name">Ticket Code</Label>
-                                                        <Field name="code" id="code" value={values.code} disabled={true} className={`form-control ${errors.name && touched.name && 'is-invalid'}`}/>
-                                                        {errors.code && touched.code ? <div className="invalid-feedback">{errors.code}</div> : null}
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md="6">
-                                                    <FormGroup>
-                                                        <Label for="passenger_id">Passenger</Label>
-                                                        <Select
-                                                            className={`basic-single ${errors.passenger_id && touched.passenger_id && 'is-invalid'}`}
-                                                            classNamePrefix="select"
-                                                            defaultValue={passengerDefault}
-                                                            isDisabled={false}
-                                                            isLoading={false}
-                                                            isClearable={true}
-                                                            isRtl={false}
-                                                            isSearchable={true}
-                                                            onChange={this.handlePassengerSelect}
-                                                            name="passenger_id"
-                                                            id="passenger_id"
-                                                            options={passengersData}
-                                                        />
-                                                        {errors.passenger_id && touched.passenger_id ? <div className="invalid-feedback">{errors.passenger_id}</div> : null}
-                                                    </FormGroup>
-                                                </Col>
-                                            </Row>
+                                                <div className="form-body">
+                                                    <h4 className="form-section">
+                                                        <Home
+                                                            size={20}
+                                                            color="#212529"
+                                                        />{" "}
+                                                        Ticket Info
+                                                    </h4>
+                                                    <Row>
+                                                        <Col md="4">
+                                                            <FormGroup>
+                                                                <Label for="name">
+                                                                    Ticket Code
+                                                                </Label>
+                                                                <Field
+                                                                    name="code"
+                                                                    id="code"
+                                                                    value={
+                                                                        values.code
+                                                                    }
+                                                                    disabled={
+                                                                        true
+                                                                    }
+                                                                    className={`form-control ${errors.name &&
+                                                                        touched.name &&
+                                                                        "is-invalid"}`}
+                                                                />
+                                                                {errors.code &&
+                                                                touched.code ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.code
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                        <Col md="4">
+                                                            <FormGroup>
+                                                                <Label for="dropoff_add">
+                                                                    Vehicle
+                                                                </Label>
+                                                                {console.log(
+                                                                    vehicleDefault[0]
+                                                                )}
+                                                                <Select
+                                                                    className={`basic-single ${errors.vehicle_id &&
+                                                                        touched.vehicle_id &&
+                                                                        "is-invalid"}`}
+                                                                    classNamePrefix="select"
+                                                                    value={
+                                                                        vehicleDefault[0]
+                                                                    }
+                                                                    isClearable={
+                                                                        true
+                                                                    }
+                                                                    isSearchable={
+                                                                        true
+                                                                    }
+                                                                    onChange={
+                                                                        this
+                                                                            .handleVehicleSelect
+                                                                    }
+                                                                    name="vehicle_id"
+                                                                    id="vehicle_id"
+                                                                    options={
+                                                                        vehiclesData
+                                                                    }
+                                                                />
+                                                                {errors.vehicle_id &&
+                                                                touched.vehicle_id ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.vehicle_id
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                        <Col md="4">
+                                                            <FormGroup>
+                                                                <Label for="passenger_id">
+                                                                    Passenger
+                                                                </Label>
+                                                                <Select
+                                                                    className={`basic-single ${errors.passenger_id &&
+                                                                        touched.passenger_id &&
+                                                                        "is-invalid"}`}
+                                                                    classNamePrefix="select"
+                                                                    value={
+                                                                        passengerDefault[0]
+                                                                    }
+                                                                    isClearable={
+                                                                        true
+                                                                    }
+                                                                    isSearchable={
+                                                                        true
+                                                                    }
+                                                                    onChange={
+                                                                        this
+                                                                            .handlePassengerSelect
+                                                                    }
+                                                                    name="passenger_id"
+                                                                    id="passenger_id"
+                                                                    options={
+                                                                        passengersData
+                                                                    }
+                                                                />
+                                                                {errors.passenger_id &&
+                                                                touched.passenger_id ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.passenger_id
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                    </Row>
 
-                                            <h4 className="form-section"><Phone size={20} color="#212529" /> Passenger Info</h4>
+                                                    <h4 className="form-section">
+                                                        <Phone
+                                                            size={20}
+                                                            color="#212529"
+                                                        />{" "}
+                                                        Passenger Info
+                                                    </h4>
 
-                                            <Row>
-                                                <Col md="6">
-                                                    <FormGroup>
-                                                        <Label for="name">Passenger Name</Label>
-                                                        <Field name="name" id="name" value={values.name} disabled={passengerCreate} className={`form-control ${errors.name && touched.name && 'is-invalid'}`}/>
-                                                        {errors.name && touched.name ? <div className="invalid-feedback">{errors.name}</div> : null}
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md="6">
-                                                    <FormGroup>
-                                                        <Label for="father_name">Passenger Father Name</Label>
-                                                        <Field name="father_name" id="father_name" value={values.father_name} disabled={passengerCreate} className={`form-control ${errors.father_name && touched.father_name && 'is-invalid'}`}/>
-                                                        {errors.father_name && touched.father_name ? <div className="invalid-feedback">{errors.father_name}</div> : null}
-                                                    </FormGroup>
-                                                </Col>
-                                            </Row>
-                                            <Row>
-                                                <Col md="6">
-                                                    <FormGroup>
-                                                        <Label for="cnic">CNIC</Label>
-                                                        <Field id="cnic"   name="cnic" value={values.cnic} disabled={passengerCreate} className={`form-control ${errors.cnic && touched.cnic && 'is-invalid'}`} />
-                                                        {errors.cnic && touched.cnic ? <div className="invalid-feedback">{errors.cnic}</div> : null}
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md="6">
-                                                    <FormGroup>
-                                                        <Label for="model">Gender</Label>
-                                                        <select onChange={handleChange} id="gender" name="gender" disabled={passengerCreate} className={`form-control ${errors.type && touched.type && 'is-invalid'}`}>
-                                                            <option value="" defaultValue="" disabled="">Select Gender</option>
-                                                            <option value="M" selected={values.gender === 'M'}>Male</option>
-                                                            <option value="F" selected={values.gender === 'F'}>Female</option>
-                                                        </select>
-                                                        {errors.model && touched.model ? <div className="invalid-feedback">{errors.model}</div> : null}
-                                                    </FormGroup>
-                                                </Col>
-                                            </Row>
+                                                    <Row>
+                                                        <Col md="6">
+                                                            <FormGroup>
+                                                                <Label for="name">
+                                                                    Passenger
+                                                                    Name
+                                                                </Label>
+                                                                <Field
+                                                                    name="name"
+                                                                    id="name"
+                                                                    value={
+                                                                        values.name
+                                                                    }
+                                                                    disabled={
+                                                                        passengerCreate
+                                                                    }
+                                                                    className={`form-control ${errors.name &&
+                                                                        touched.name &&
+                                                                        "is-invalid"}`}
+                                                                />
+                                                                {errors.name &&
+                                                                touched.name ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.name
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                        <Col md="6">
+                                                            <FormGroup>
+                                                                <Label for="father_name">
+                                                                    Passenger
+                                                                    Father Name
+                                                                </Label>
+                                                                <Field
+                                                                    name="father_name"
+                                                                    id="father_name"
+                                                                    value={
+                                                                        values.father_name
+                                                                    }
+                                                                    disabled={
+                                                                        passengerCreate
+                                                                    }
+                                                                    className={`form-control ${errors.father_name &&
+                                                                        touched.father_name &&
+                                                                        "is-invalid"}`}
+                                                                />
+                                                                {errors.father_name &&
+                                                                touched.father_name ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.father_name
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                    </Row>
+                                                    <Row>
+                                                        <Col md="6">
+                                                            <FormGroup>
+                                                                <Label for="cnic">
+                                                                    CNIC
+                                                                </Label>
+                                                                <Field
+                                                                    id="cnic"
+                                                                    name="cnic"
+                                                                    value={
+                                                                        values.cnic
+                                                                    }
+                                                                    disabled={
+                                                                        passengerCreate
+                                                                    }
+                                                                    className={`form-control ${errors.cnic &&
+                                                                        touched.cnic &&
+                                                                        "is-invalid"}`}
+                                                                />
+                                                                {errors.cnic &&
+                                                                touched.cnic ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.cnic
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                        <Col md="6">
+                                                            <FormGroup>
+                                                                <Label for="model">
+                                                                    Gender
+                                                                </Label>
+                                                                <select
+                                                                    onChange={
+                                                                        handleChange
+                                                                    }
+                                                                    id="gender"
+                                                                    name="gender"
+                                                                    disabled={
+                                                                        passengerCreate
+                                                                    }
+                                                                    className={`form-control ${errors.type &&
+                                                                        touched.type &&
+                                                                        "is-invalid"}`}
+                                                                >
+                                                                    <option
+                                                                        value=""
+                                                                        defaultValue=""
+                                                                        disabled=""
+                                                                    >
+                                                                        Select
+                                                                        Gender
+                                                                    </option>
+                                                                    <option
+                                                                        value="M"
+                                                                        selected={
+                                                                            values.gender ===
+                                                                            "M"
+                                                                        }
+                                                                    >
+                                                                        Male
+                                                                    </option>
+                                                                    <option
+                                                                        value="F"
+                                                                        selected={
+                                                                            values.gender ===
+                                                                            "F"
+                                                                        }
+                                                                    >
+                                                                        Female
+                                                                    </option>
+                                                                </select>
+                                                                {errors.model &&
+                                                                touched.model ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.model
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                    </Row>
 
+                                                    <Row>
+                                                        <Col md="6">
+                                                            <FormGroup>
+                                                                <Label for="phone">
+                                                                    Primary
+                                                                    Phone
+                                                                </Label>
+                                                                <Field
+                                                                    name="phone"
+                                                                    id="phone"
+                                                                    value={
+                                                                        values.phone
+                                                                    }
+                                                                    disabled={
+                                                                        passengerCreate
+                                                                    }
+                                                                    className={`form-control ${errors.phone &&
+                                                                        touched.phone &&
+                                                                        "is-invalid"}`}
+                                                                />
+                                                                {errors.phone &&
+                                                                touched.phone ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.phone
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                        <Col md="6">
+                                                            <FormGroup>
+                                                                <Label for="email">
+                                                                    Primary
+                                                                    Email
+                                                                </Label>
+                                                                <Field
+                                                                    name="email"
+                                                                    id="email"
+                                                                    value={
+                                                                        values.email
+                                                                    }
+                                                                    disabled={
+                                                                        passengerCreate
+                                                                    }
+                                                                    className={`form-control ${errors.email &&
+                                                                        touched.email &&
+                                                                        "is-invalid"}`}
+                                                                />
+                                                                {errors.email &&
+                                                                touched.email ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.email
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                    </Row>
 
-                                            <Row>
-                                                <Col md="6">
-                                                    <FormGroup>
-                                                        <Label for="phone">Primary Phone</Label>
-                                                        <Field name="phone" id="phone" value={values.phone} disabled={passengerCreate} className={`form-control ${errors.phone && touched.phone && 'is-invalid'}`} />
-                                                        {errors.phone && touched.phone ? <div className="invalid-feedback">{errors.phone}</div> : null}
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md="6">
-                                                    <FormGroup>
-                                                        <Label for="email">Primary Email</Label>
-                                                        <Field name="email" id="email" value={values.email} disabled={passengerCreate} className={`form-control ${errors.email && touched.email && 'is-invalid'}`} />
-                                                        {errors.email && touched.email ? <div className="invalid-feedback">{errors.email}</div> : null}
-                                                    </FormGroup>
-                                                </Col>
-                                            </Row>
+                                                    <Row>
+                                                        <Col md="12">
+                                                            <FormGroup>
+                                                                <Label for="full_address">
+                                                                    Address
+                                                                </Label>
+                                                                <Field
+                                                                    name="full_address"
+                                                                    id="full_address"
+                                                                    value={
+                                                                        values.full_address
+                                                                    }
+                                                                    disabled={
+                                                                        passengerCreate
+                                                                    }
+                                                                    className={`form-control ${errors.full_address &&
+                                                                        touched.full_address &&
+                                                                        "is-invalid"}`}
+                                                                />
+                                                                {errors.full_address &&
+                                                                touched.full_address ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.full_address
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                    </Row>
+                                                    <h4 className="form-section">
+                                                        <Home
+                                                            size={20}
+                                                            color="#212529"
+                                                        />{" "}
+                                                        Ticket Info
+                                                    </h4>
 
+                                                    <Row>
+                                                        <Col md="4">
+                                                            <FormGroup>
+                                                                <Label for="issuance">
+                                                                    Issuance
+                                                                </Label>
+                                                                <Input
+                                                                    id="issuance"
+                                                                    type="date"
+                                                                    value={
+                                                                        formValues.issuance
+                                                                    }
+                                                                    name="issuance"
+                                                                    className={`form-control ${errors.issuance &&
+                                                                        touched.issuance &&
+                                                                        "is-invalid"}`}
+                                                                />
+                                                                {errors.issuance &&
+                                                                touched.issuance ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.issuance
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                        <Col md="4">
+                                                            <FormGroup>
+                                                                <Label for="expiry">
+                                                                    Expiry
+                                                                </Label>
+                                                                <Input
+                                                                    name="expiry"
+                                                                    type="date"
+                                                                    value={
+                                                                        formValues.expiry
+                                                                    }
+                                                                    id="expiry"
+                                                                    className={`form-control ${errors.expiry &&
+                                                                        touched.expiry &&
+                                                                        "is-invalid"}`}
+                                                                />
+                                                                {errors.expiry &&
+                                                                touched.expiry ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.expiry
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                        <Col md="4">
+                                                            <FormGroup>
+                                                                <Label for="status">
+                                                                    Status
+                                                                </Label>
+                                                                <select
+                                                                    onChange={
+                                                                        handleChange
+                                                                    }
+                                                                    id="status"
+                                                                    name="status"
+                                                                    className={`form-control ${errors.status &&
+                                                                        touched.status &&
+                                                                        "is-invalid"}`}
+                                                                >
+                                                                    <option
+                                                                        value="-1"
+                                                                        defaultValue=""
+                                                                        disabled=""
+                                                                    >
+                                                                        Select
+                                                                        Status
+                                                                    </option>
+                                                                    {STATUS.map(
+                                                                        (
+                                                                            st,
+                                                                            index
+                                                                        ) => (
+                                                                            <option
+                                                                                value={
+                                                                                    index
+                                                                                }
+                                                                                key={
+                                                                                    index
+                                                                                }
+                                                                                selected={
+                                                                                    index ===
+                                                                                    formValues.status
+                                                                                }
+                                                                            >{`${st}`}</option>
+                                                                        )
+                                                                    )}
+                                                                </select>
+                                                                {errors.passenger_id &&
+                                                                touched.passenger_id ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.passenger_id
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                    </Row>
 
-                                            <Row>
-                                                <Col md="12">
-                                                    <FormGroup>
-                                                        <Label for="full_address">Address</Label>
-                                                        <Field name="full_address" id="full_address" value={values.full_address} disabled={passengerCreate} className={`form-control ${errors.full_address && touched.full_address && 'is-invalid'}`} />
-                                                        {errors.full_address && touched.full_address ? <div className="invalid-feedback">{errors.full_address}</div> : null}
-                                                    </FormGroup>
-                                                </Col>
-                                            </Row>
-                                            <h4 className="form-section"><Home size={20} color="#212529" /> Ticket Info</h4>
+                                                    <Row>
+                                                        <Col md="4">
+                                                            <FormGroup>
+                                                                <Label for="kin_name">
+                                                                    Kin Name
+                                                                </Label>
+                                                                <Input
+                                                                    id="kin_name"
+                                                                    value={
+                                                                        formValues.kin_name
+                                                                    }
+                                                                    name="kin_name"
+                                                                    className={`form-control  ${errors.kin_name &&
+                                                                        touched.kin_name &&
+                                                                        "is-invalid"}`}
+                                                                />
+                                                                {errors.kin_name &&
+                                                                touched.kin_name ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.kin_name
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                        <Col md="4">
+                                                            <FormGroup>
+                                                                <Label for="kin_relation">
+                                                                    Kin Relation
+                                                                </Label>
+                                                                <Input
+                                                                    name="kin_relation"
+                                                                    value={
+                                                                        formValues.kin_relation
+                                                                    }
+                                                                    id="kin_relation"
+                                                                    className={`form-control  ${errors.kin_relation &&
+                                                                        touched.kin_relation &&
+                                                                        "is-invalid"}`}
+                                                                />
+                                                                {errors.kin_relation &&
+                                                                touched.kin_relation ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.kin_relation
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                        <Col md="4">
+                                                            <FormGroup>
+                                                                <Label for="kin_contact">
+                                                                    Kin Contact
+                                                                </Label>
+                                                                <Input
+                                                                    name="kin_contact"
+                                                                    value={
+                                                                        formValues.kin_contact
+                                                                    }
+                                                                    id="kin_contact"
+                                                                    className={`form-control  ${errors.kin_contact &&
+                                                                        touched.kin_contact &&
+                                                                        "is-invalid"}`}
+                                                                />
+                                                                {errors.kin_contact &&
+                                                                touched.kin_contact ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.kin_contact
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                    </Row>
 
-                                            <Row>
-                                                <Col md="4">
-                                                    <FormGroup>
-                                                        <Label for="issuance">Issuance</Label>
-                                                        <Input id="issuance" type="date" value={formValues.issuance} name="issuance" className={`form-control ${errors.issuance && touched.issuance && 'is-invalid'}`} />
-                                                        {errors.issuance && touched.issuance ? <div className="invalid-feedback">{errors.issuance}</div> : null}
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md="4">
-                                                    <FormGroup>
-                                                        <Label for="expiry">Expiry</Label>
-                                                        <Input name="expiry" type="date" value={formValues.expiry} id="expiry" className={`form-control ${errors.expiry && touched.expiry && 'is-invalid'}`} />
-                                                        {errors.expiry && touched.expiry ? <div className="invalid-feedback">{errors.expiry}</div> : null}
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md="4">
-                                                    <FormGroup>
-                                                        <Label for="status">Status</Label>
-                                                        <select onChange={handleChange} id="status" name="status" className={`form-control ${errors.status && touched.status && 'is-invalid'}`}>
-                                                            <option value="-1" defaultValue="" disabled="">Select Status</option>
-                                                            {
-                                                                STATUS.map((st, index) => (
-                                                                    <option value={index} key={index} selected={index === formValues.status}>{`${st}`}</option>
-                                                                ))
+                                                    <Row>
+                                                        <Col md="6">
+                                                            <FormGroup>
+                                                                <Label for="pickup_add">
+                                                                    Pickup
+                                                                </Label>
+                                                                <Input
+                                                                    id="pickup_add"
+                                                                    value={
+                                                                        formValues.pickup_add
+                                                                    }
+                                                                    name="pickup_add"
+                                                                    className={`form-control  ${errors.pickup_add &&
+                                                                        touched.pickup_add &&
+                                                                        "is-invalid"}`}
+                                                                />
+                                                                {errors.pickup_add &&
+                                                                touched.pickup_add ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.pickup_add
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                        <Col md="6">
+                                                            <FormGroup>
+                                                                <Label for="dropoff_add">
+                                                                    Dropoff
+                                                                </Label>
+                                                                <Input
+                                                                    name="dropoff_add"
+                                                                    value={
+                                                                        formValues.dropoff_add
+                                                                    }
+                                                                    id="dropoff_add"
+                                                                    className={`form-control  ${errors.dropoff_add &&
+                                                                        touched.dropoff_add &&
+                                                                        "is-invalid"}`}
+                                                                />
+                                                                {errors.dropoff_add &&
+                                                                touched.dropoff_add ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.dropoff_add
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                    </Row>
+                                                </div>
+
+                                                <div className="form-actions">
+                                                    <Button
+                                                        color="primary"
+                                                        type="submit"
+                                                        disabled={isSubmitting}
+                                                    >
+                                                        <CheckSquare
+                                                            size={16}
+                                                            color="#FFF"
+                                                        />{" "}
+                                                        Save
+                                                    </Button>
+                                                    {this.state.alert
+                                                        .display && (
+                                                        <Alert
+                                                            color={
+                                                                this.state.alert
+                                                                    .type
                                                             }
-                                                        </select>
-                                                        {errors.passenger_id && touched.passenger_id ? <div className="invalid-feedback">{errors.passenger_id}</div> : null}
-
-                                                    </FormGroup>
-                                                </Col>
-                                            </Row>
-
-                                            <Row>
-                                                <Col md="4">
-                                                    <FormGroup>
-                                                        <Label for="kin_name">Kin Name</Label>
-                                                        <Input id="kin_name" value={formValues.kin_name} name="kin_name" className={`form-control  ${errors.kin_name && touched.kin_name && 'is-invalid'}`} />
-                                                        {errors.kin_name && touched.kin_name ? <div className="invalid-feedback">{errors.kin_name}</div> : null}
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md="4">
-                                                    <FormGroup>
-                                                        <Label for="kin_relation">Kin Relation</Label>
-                                                        <Input name="kin_relation" value={formValues.kin_relation} id="kin_relation" className={`form-control  ${errors.kin_relation && touched.kin_relation && 'is-invalid'}`} />
-                                                        {errors.kin_relation && touched.kin_relation ? <div className="invalid-feedback">{errors.kin_relation}</div> : null}
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md="4">
-                                                    <FormGroup>
-                                                        <Label for="kin_contact">Kin Contact</Label>
-                                                        <Input name="kin_contact" value={formValues.kin_contact} id="kin_contact" className={`form-control  ${errors.kin_contact && touched.kin_contact && 'is-invalid'}`} />
-                                                        {errors.kin_contact && touched.kin_contact ? <div className="invalid-feedback">{errors.kin_contact}</div> : null}
-                                                    </FormGroup>
-                                                </Col>
-                                            </Row>
-
-                                            <Row>
-                                                <Col md="6">
-                                                    <FormGroup>
-                                                        <Label for="pickup_add">Pickup</Label>
-                                                        <Input id="pickup_add" value={formValues.pickup_add} name="pickup_add" className={`form-control  ${errors.pickup_add && touched.pickup_add && 'is-invalid'}`} />
-                                                        {errors.pickup_add && touched.pickup_add ? <div className="invalid-feedback">{errors.pickup_add}</div> : null}
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md="6">
-                                                    <FormGroup>
-                                                        <Label for="dropoff_add">Dropoff</Label>
-                                                        <Input name="dropoff_add" value={formValues.dropoff_add} id="dropoff_add" className={`form-control  ${errors.dropoff_add && touched.dropoff_add && 'is-invalid'}`} />
-                                                        {errors.dropoff_add && touched.dropoff_add ? <div className="invalid-feedback">{errors.dropoff_add}</div> : null}
-                                                    </FormGroup>
-                                                </Col>
-                                            </Row>
-
-                                        </div>
-
-                                        <div className="form-actions">
-                                            <Button color="primary" type="submit" disabled={isSubmitting}>
-                                                <CheckSquare size={16} color="#FFF" /> Save
-                                            </Button>
-                                            {   this.state.alert.display &&
-                                                <Alert color={this.state.alert.type} >
-                                                    {this.state.alert.message}
-                                                </Alert>
-                                            }
-                                        </div>
-                                    </Form>
+                                                        >
+                                                            {
+                                                                this.state.alert
+                                                                    .message
+                                                            }
+                                                        </Alert>
+                                                    )}
+                                                </div>
+                                            </Form>
                                         )}
                                     </Formik>
                                 </div>

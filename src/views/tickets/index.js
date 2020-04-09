@@ -4,6 +4,7 @@ import ContentHeader from "../../components/contentHead/contentHeader";
 import { Card, CardBody, CardTitle, Row, Col } from "reactstrap";
 import axios from "axios";
 import config from "../../app/config";
+import Filter from "./filter";
 
 // Table exmple pages
 import DataTable from "./table";
@@ -13,14 +14,79 @@ class Index extends Component {
 
     state = {
         auth: store.getState().authentication.Auth,
-        tickets: []
+        tickets: [],
+        passengers: [],
+        vehicles: [],
+        filter: {
+            passengers: [],
+            vehicles: []
+        }
     };
 
-    componentWillMount() {
+    componentDidMount() {
+        this.getPassengers();
+        this.getTickets();
         this.getVehicles();
     };
 
+    getPassengers = async () => {
+        const {filter} = this.state;
+        const requestOptions = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${this.state.auth.token}`
+            }
+        };
+
+        fetch(`${config.base_url}v1/passenger`, requestOptions)
+            .then(this.handleResponse)
+            .then(response => {
+                if(response.success === true){
+                    const {passengers} = response.data;
+                    const passengersData = passengers.map(p => ({"value": p.id, "label": `${p.name} (${p.cnic})`}));
+                    this.setState({passengers });
+                    this.setState({
+                        filter: {...filter, passengers: passengersData}
+                    });
+
+                }
+                return response;
+            });
+    };
+    handleResponse(response) {
+        return response.text().then(text => {
+            return text && JSON.parse(text);
+        });
+    }
+
     getVehicles = async () => {
+        const {filter} = this.state;
+        const requestOptions = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${this.state.auth.token}`
+            }
+        };
+
+        fetch(`${config.base_url}v1/vehicle`, requestOptions)
+            .then(this.handleResponse)
+            .then(response => {
+                if(response.success === true){
+                    const {vehicles} = response.data;
+                    const vehiclesData = vehicles.map(p => ({"value": p.id, "label": `${p.name}`}));
+                    this.setState({vehicles });
+                    this.setState({
+                        filter: {...filter, vehicles: vehiclesData}
+                    });
+
+                }
+                return response;
+            });
+    };
+
+    getTickets = async () => {
         const param = {
             url: config.base_url + "v1/ticket",
             headers: {
@@ -43,9 +109,10 @@ class Index extends Component {
 
     render() {
         const heading = ['Code', 'Passenger Name', 'Merchant Name', 'Issuance', 'Expiry', 'Status', 'Action'];
-
+        const {filter} = this.state;
         return (
             <Fragment>
+                <Filter filter={filter}/>
                 <ContentHeader>Ticket List </ContentHeader>
 
                 <Row>

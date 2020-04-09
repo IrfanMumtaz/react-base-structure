@@ -13,6 +13,7 @@ import "react-select/dist/react-select";
 const formSchema = Yup.object().shape({
     code: Yup.string().max(50, "Too long, max 50 characters").required("Required"),
     passenger_id: Yup.number().nullable(),
+    vehicle_id: Yup.number().required("Required").nullable(),
     issuance: Yup.date().required("Required"),
     expiry: Yup.date().required("Required"),
     status: Yup.number().max(3).min(0).required("Required"),
@@ -47,6 +48,7 @@ class Create extends Component {
             kin_contact: '',
             merchant_id: null,
             passenger_id: null,
+            vehicle_id: null,
             pickup_add: '',
             dropoff_add: '',
             name: '',
@@ -76,7 +78,9 @@ class Create extends Component {
             }
         },
         passengers: [],
+        vehicles: [],
         passengersData: [],
+        vehiclesData: [],
         STATUS: new Array("Expired", 'Active', "Refunded", "Claimed"),
         passengerCreate: false,
         alert: {
@@ -88,6 +92,7 @@ class Create extends Component {
 
     componentDidMount() {
         this.getPassengers();
+        this.getVehicles();
         let { formValues } = this.state;
         formValues.code = this.generateCode();
         this.setState({formValues});
@@ -112,6 +117,26 @@ class Create extends Component {
                     const {passengers} = response.data;
                     const passengersData = passengers.map(p => ({"value": p.id, "label": `${p.name} (${p.cnic})`}));
                     this.setState({passengers, passengersData });
+                }
+                return response;
+            });
+    };
+
+    getVehicles = async () => {
+        const requestOptions = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${this.state.auth.token}`
+            }
+        };
+        fetch(`${config.base_url}v1/vehicle`, requestOptions)
+            .then(this.handleResponse)
+            .then(response => {
+                if(response.success === true){
+                    const {vehicles} = response.data;
+                    const vehiclesData = vehicles.map(p => ({"value": p.id, "label": `${p.name}`}));
+                    this.setState({vehicles, vehiclesData });
                 }
                 return response;
             });
@@ -260,6 +285,22 @@ class Create extends Component {
         }
     };
 
+    handleVehicleSelect = option => {
+        const { formValues, vehicles } = this.state;
+        if(option){
+            this.setState({formValues: {
+                    ...formValues,
+                    vehicle_id: option.value
+                }});
+        }
+        else{
+            this.setState({formValues: {
+                    ...formValues,
+                    passenger_id: null
+                }});
+        }
+    };
+
     handleChange = e => {
         const { formValues } = this.state;
         formValues[e.target.name] = e.target.value;
@@ -271,11 +312,11 @@ class Create extends Component {
     };
 
     render() {
-        const {STATUS, formValues, passengers, passengersData, passengerCreate} = this.state;
+        const {STATUS, formValues, passengers, passengersData, passengerCreate, vehiclesData} = this.state;
         return (
             <Fragment>
 
-                <ContentHeader>Ticket Update </ContentHeader>
+                <ContentHeader>Ticket Create </ContentHeader>
 
                 <Row>
                     <Col md="12">
@@ -300,14 +341,34 @@ class Create extends Component {
                                                 <div className="form-body">
                                                     <h4 className="form-section"><Home size={20} color="#212529" /> Ticket Info</h4>
                                                     <Row>
-                                                        <Col md="6">
+                                                        <Col md="4">
                                                             <FormGroup>
                                                                 <Label for="name">Ticket Code</Label>
                                                                 <Field name="code" id="code" value={values.code} disabled={true} className={`form-control ${errors.name && touched.name && 'is-invalid'}`}/>
                                                                 {errors.code && touched.code ? <div className="invalid-feedback">{errors.code}</div> : null}
                                                             </FormGroup>
                                                         </Col>
-                                                        <Col md="6">
+
+
+                                                        <Col md="4">
+                                                            <FormGroup>
+                                                                <Label for="dropoff_add">Vehicle</Label>
+                                                                <Select
+                                                                    className={`basic-single ${errors.vehicle_id && touched.vehicle_id && 'is-invalid'}`}
+                                                                    classNamePrefix="select"
+                                                                    defaultValue={null}
+                                                                    isClearable={true}
+                                                                    isSearchable={true}
+                                                                    onChange={this.handleVehicleSelect}
+                                                                    name="vehicle_id"
+                                                                    id="vehicle_id"
+                                                                    options={vehiclesData}
+                                                                />
+                                                                {errors.vehicle_id && touched.vehicle_id ? <div className="invalid-feedback">{errors.vehicle_id}</div> : null}
+                                                            </FormGroup>
+                                                        </Col>
+
+                                                        <Col md="4">
                                                             <FormGroup>
                                                                 <Label for="passenger_id">Passenger</Label>
                                                                 <Select
