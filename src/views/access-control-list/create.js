@@ -11,17 +11,11 @@ import {
     Row,
 } from "reactstrap";
 import { CheckSquare, Map } from "react-feather";
-import { Field, Formik, Form } from "formik";
-import * as Yup from "yup";
 import Select from "react-select";
 import "react-select/dist/react-select";
 import { ACL_GATEWAY } from "gateway/service/acl";
-
-const formSchema = Yup.object().shape({
-    name: Yup.string()
-        .required("Required")
-        .max(50, "Role name is too long."),
-});
+import { Field, Formik, Form } from "formik";
+import aclSchema from "schemas/acl";
 
 class Create extends Component {
     constructor() {
@@ -138,7 +132,7 @@ class Create extends Component {
                                     <Formik
                                         initialValues={this.state.formValues}
                                         enableReinitialize={true}
-                                        validationSchema={formSchema}
+                                        validationSchema={aclSchema}
                                         onSubmit={(data, { setSubmitting }) => {
                                             setSubmitting(true);
                                             this.setState({ formValues: data });
@@ -166,7 +160,7 @@ class Create extends Component {
                                                         <Col md="12">
                                                             <FormGroup>
                                                                 <Label for="name">
-                                                                    Role Name
+                                                                    Role Name *
                                                                 </Label>
                                                                 <Field
                                                                     name="name"
@@ -189,6 +183,9 @@ class Create extends Component {
 
                                                     <Row>
                                                         <Col md="12">
+                                                            <Label for="name">
+                                                                Permissions
+                                                            </Label>
                                                             <Select
                                                                 options={
                                                                     permissions
