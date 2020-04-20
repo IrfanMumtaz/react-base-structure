@@ -1,16 +1,26 @@
 import React, { Component, Fragment } from "react";
-import config from "../../app/config";
-import {store} from "../../redux/storeConfig/store";
-import ContentHeader from "../../components/contentHead/contentHeader";
-import {Alert, Button, Card, CardBody, CardTitle, Col, FormGroup, Input, Label, Row} from "reactstrap";
-import {CheckSquare, FileText, Info, Mail, X, Map} from "react-feather";
-import {Field, Formik, Form} from "formik";
+import ContentHeader from "components/contentHead/contentHeader";
+import {
+    Alert,
+    Button,
+    Card,
+    CardBody,
+    Col,
+    FormGroup,
+    Label,
+    Row,
+} from "reactstrap";
+import { CheckSquare, Map } from "react-feather";
+import { Field, Formik, Form } from "formik";
 import * as Yup from "yup";
-import Select from 'react-select';
+import Select from "react-select";
 import "react-select/dist/react-select";
+import { ACL_GATEWAY } from "gateway/service/acl";
 
 const formSchema = Yup.object().shape({
-    name: Yup.string().required("Required").max(50, "Role name is too long.")
+    name: Yup.string()
+        .required("Required")
+        .max(50, "Role name is too long."),
 });
 
 class Create extends Component {
@@ -18,122 +28,95 @@ class Create extends Component {
         super();
 
         this.state = {
-            auth: store.getState().authentication.Auth,
             formValues: {
-                name: '',
-                permissions: []
+                name: "",
+                permissions: [],
             },
-            multivalues: [
-            ],
+            multivalues: [],
             permissions: [],
             alert: {
                 display: false,
                 type: "success",
-                message: ""
-            }
+                message: "",
+            },
         };
     }
-
-
-
 
     componentWillMount() {
         this.getPermissions();
     }
 
     getPermissions = async () => {
-        const { permissions } = this.state;
-        const requestOptions = {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                "Authorization": `Bearer ${this.state.auth.token}`
-            }
-        };
-        fetch(`${config.base_url}v1/acl/permission`, requestOptions)
-            .then(this.handleResponse)
-            .then(response => {
-                if(response.success === true){
-                    const alert = {
-                        type: "success",
-                        message: response.message,
-                        display: true
-                    };
-                    const {permissions} = response.data;
-                    let statePermission = [];
-                    permissions.map( permission => (
-                        statePermission.push({
-                            value: permission.id,
-                            label: permission.name
-                        })
-                    ));
-                    this.setState({permissions: statePermission });
-                }
-                return response;
-            });
+        const response = await ACL_GATEWAY.getPermissions();
+        const permissions = this.setFormatMultiSelect(response.permissions);
+        this.setState({ permissions });
     };
 
+    setFormatMultiSelect(data) {
+        let _data = [];
+        data.map((d) =>
+            _data.push({
+                value: d.id,
+                label: d.name,
+            })
+        );
 
-    createRole = async () => {
+        return _data;
+    }
+
+    /* createRole = async () => {
         let { formValues, multivalues } = this.state;
         formValues.permissions = [];
-        multivalues.map(val => {
+        multivalues.map((val) => {
             formValues.permissions.push(val.value);
         });
         const requestOptions = {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
-                "Authorization": `Bearer ${this.state.auth.token}`
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${this.state.auth.token}`,
             },
-            body: JSON.stringify(formValues)
+            body: JSON.stringify(formValues),
         };
         fetch(`${config.base_url}v1/acl/role`, requestOptions)
             .then(this.handleResponse)
-            .then(response => {
-                if(response.success === true){
+            .then((response) => {
+                if (response.success === true) {
                     const alert = {
                         type: "success",
                         message: response.message,
-                        display: true
+                        display: true,
                     };
-                    this.setState({alert});
-                }
-                else{
+                    this.setState({ alert });
+                } else {
                     const alert = {
                         type: "danger",
                         message: response.error.message,
-                        display: true
+                        display: true,
                     };
-                    this.setState({alert});
+                    this.setState({ alert });
                 }
                 return response;
             });
-    };
+    }; */
 
-    handleResponse(response) {
-        return response.text().then(text => {
-            return text && JSON.parse(text);
-        });
-    }
-
-    handleSubmit = e => {
+    handleSubmit = (e) => {
         this.createRole();
     };
 
-    handleMultiChange = option => {
-        this.setState({multivalues: option});
+    handleMultiChange = (option) => {
+        this.setState({ multivalues: option });
     };
 
     handleResetForm = () => {
         document.getElementById("roleForm").reset();
     };
 
-    findPermission(id){
-        let {formValues} = this.state;
-        let obj = formValues.permissions.find(p => p.id === id);
-        if(obj) {
-            if(formValues.addPermission.indexOf(id === -1)){
+    findPermission(id) {
+        let { formValues } = this.state;
+        let obj = formValues.permissions.find((p) => p.id === id);
+        if (obj) {
+            if (formValues.addPermission.indexOf(id === -1)) {
                 formValues.addPermission.push(id);
             }
             return true;
@@ -142,7 +125,7 @@ class Create extends Component {
     }
 
     render() {
-        const {permissions, formValues} = this.state;
+        const { permissions, formValues } = this.state;
         return (
             <Fragment>
                 <ContentHeader>Vehicles Update </ContentHeader>
@@ -156,23 +139,50 @@ class Create extends Component {
                                         initialValues={this.state.formValues}
                                         enableReinitialize={true}
                                         validationSchema={formSchema}
-                                        onSubmit={(data, {setSubmitting}) => {
+                                        onSubmit={(data, { setSubmitting }) => {
                                             setSubmitting(true);
-                                            this.setState({formValues: data});
+                                            this.setState({ formValues: data });
                                             this.handleSubmit();
                                             setSubmitting(false);
                                         }}
                                     >
-                                        {({ values, isSubmitting, errors, touched, handleChange}) => (
+                                        {({
+                                            values,
+                                            isSubmitting,
+                                            errors,
+                                            touched,
+                                            handleChange,
+                                        }) => (
                                             <Form id="roleForm">
                                                 <div className="form-body">
-                                                    <h4 className="form-section"><Map size={20} color="#212529" /> Role Info</h4>
+                                                    <h4 className="form-section">
+                                                        <Map
+                                                            size={20}
+                                                            color="#212529"
+                                                        />{" "}
+                                                        Role Info
+                                                    </h4>
                                                     <Row>
                                                         <Col md="12">
                                                             <FormGroup>
-                                                                <Label for="name">Role Name</Label>
-                                                                <Field name="name" id="name" className={`form-control ${errors.name && touched.name && 'is-invalid'}`}/>
-                                                                {errors.name && touched.name ? <div className="invalid-feedback">{errors.name}</div> : null}
+                                                                <Label for="name">
+                                                                    Role Name
+                                                                </Label>
+                                                                <Field
+                                                                    name="name"
+                                                                    id="name"
+                                                                    className={`form-control ${errors.name &&
+                                                                        touched.name &&
+                                                                        "is-invalid"}`}
+                                                                />
+                                                                {errors.name &&
+                                                                touched.name ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.name
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
                                                             </FormGroup>
                                                         </Col>
                                                     </Row>
@@ -180,29 +190,50 @@ class Create extends Component {
                                                     <Row>
                                                         <Col md="12">
                                                             <Select
-                                                                options = {permissions}
-                                                                value={this.state.multivalues}
-                                                                onChange={this.handleMultiChange}
-                                                                isMulti={true}  />
+                                                                options={
+                                                                    permissions
+                                                                }
+                                                                value={
+                                                                    this.state
+                                                                        .multivalues
+                                                                }
+                                                                onChange={
+                                                                    this
+                                                                        .handleMultiChange
+                                                                }
+                                                                isMulti={true}
+                                                            />
                                                         </Col>
                                                     </Row>
-
                                                 </div>
 
                                                 <div className="form-actions">
-                                                    <Button color="primary" type="submit">
-                                                        <CheckSquare size={16} color="#FFF" /> Save
+                                                    <Button
+                                                        color="primary"
+                                                        type="submit"
+                                                    >
+                                                        <CheckSquare
+                                                            size={16}
+                                                            color="#FFF"
+                                                        />{" "}
+                                                        Save
                                                     </Button>
-                                                    {   this.state.alert.display &&
-                                                    <Alert color={this.state.alert.type} >
-                                                        {this.state.alert.message}
-                                                    </Alert>
-                                                    }
-
-
+                                                    {this.state.alert
+                                                        .display && (
+                                                        <Alert
+                                                            color={
+                                                                this.state.alert
+                                                                    .type
+                                                            }
+                                                        >
+                                                            {
+                                                                this.state.alert
+                                                                    .message
+                                                            }
+                                                        </Alert>
+                                                    )}
                                                 </div>
                                             </Form>
-
                                         )}
                                     </Formik>
                                 </div>
