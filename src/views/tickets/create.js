@@ -16,7 +16,8 @@ import { CheckSquare, Home, Phone } from "react-feather";
 import { Field, Formik, Form } from "formik";
 import * as Yup from "yup";
 import Select from "react-select";
-import "react-select/dist/react-select";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const formSchema = Yup.object().shape({
     code: Yup.string()
@@ -33,9 +34,6 @@ const formSchema = Yup.object().shape({
         .min(0)
         .required("Required"),
     kin_name: Yup.string()
-        .max(50, "Too long, max 50 characters")
-        .required("Required"),
-    kin_relation: Yup.string()
         .max(50, "Too long, max 50 characters")
         .required("Required"),
     kin_contact: Yup.string()
@@ -116,6 +114,8 @@ class Create extends Component {
             dropoff: {
                 full_address: "",
             },
+            departureTime: new Date(),
+            arrivalTIme: new Date(),
         },
         passengers: [],
         vehicles: [],
@@ -358,6 +358,26 @@ class Create extends Component {
         this.setState({ formValues });
     };
 
+    handleDepartureTime = (date) => {
+        const { formValues } = this.state;
+        this.state({
+            formValues: {
+                ...formValues,
+                departueTime: date,
+            },
+        });
+    };
+
+    handleArrivalTime = (date) => {
+        const { formValues } = this.state;
+        this.state({
+            formValues: {
+                ...formValues,
+                arrivalTIme: date,
+            },
+        });
+    };
+
     handleResetForm = () => {
         document.getElementById("form").reset();
     };
@@ -411,6 +431,86 @@ class Create extends Component {
                                                         />{" "}
                                                         Ticket Info
                                                     </h4>
+                                                    <Row>
+                                                        <Col md="6">
+                                                            <FormGroup>
+                                                                <Label for="name">
+                                                                    Booking Type
+                                                                    *
+                                                                </Label>
+                                                                <select
+                                                                    onChange={
+                                                                        handleChange
+                                                                    }
+                                                                    id="booking_type"
+                                                                    name="booking_type"
+                                                                    className={`form-control ${errors.type &&
+                                                                        touched.type &&
+                                                                        "is-invalid"}`}
+                                                                >
+                                                                    <option
+                                                                        value=""
+                                                                        defaultValue=""
+                                                                        disabled=""
+                                                                    >
+                                                                        Select
+                                                                        Type
+                                                                    </option>
+                                                                    <option
+                                                                        value="schedule"
+                                                                        disabled=""
+                                                                        selected={
+                                                                            values.booking_type ===
+                                                                            "schedule"
+                                                                        }
+                                                                    >
+                                                                        Schedule
+                                                                    </option>
+                                                                    <option
+                                                                        value="unschdule"
+                                                                        selected={
+                                                                            values.booking_type ===
+                                                                            "unschedule"
+                                                                        }
+                                                                    >
+                                                                        Unschdule
+                                                                    </option>
+                                                                </select>
+                                                                {errors.booking_type &&
+                                                                touched.booking_type ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.booking_type
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+
+                                                        <Col md="6">
+                                                            <FormGroup>
+                                                                <Label for="dropoff_add">
+                                                                    Quantity
+                                                                </Label>
+                                                                <Field
+                                                                    name="quantity"
+                                                                    value="1"
+                                                                    id="quantity"
+                                                                    className={`form-control ${errors.name &&
+                                                                        touched.name &&
+                                                                        "is-invalid"}`}
+                                                                />
+                                                                {errors.quantity &&
+                                                                touched.quantity ? (
+                                                                    <div className="invalid-feedback">
+                                                                        {
+                                                                            errors.quantity
+                                                                        }
+                                                                    </div>
+                                                                ) : null}
+                                                            </FormGroup>
+                                                        </Col>
+                                                    </Row>
                                                     <Row>
                                                         <Col md="4">
                                                             <FormGroup>
@@ -786,22 +886,34 @@ class Create extends Component {
                                                     <Row>
                                                         <Col md="4">
                                                             <FormGroup>
-                                                                <Label for="issuance">
-                                                                    Issuance
+                                                                <Label for="departueTime">
+                                                                    Departure
+                                                                    Date & Time
+                                                                    *
                                                                 </Label>
-                                                                <Field
-                                                                    id="issuance"
-                                                                    type="date"
-                                                                    name="issuance"
-                                                                    className={`form-control ${errors.issuance &&
-                                                                        touched.issuance &&
+                                                                <br />
+                                                                <DatePicker
+                                                                    selected={
+                                                                        values.departureTime
+                                                                    }
+                                                                    onChange={
+                                                                        this
+                                                                            .handleDepartureTime
+                                                                    }
+                                                                    name="departueTime"
+                                                                    id="departueTime"
+                                                                    timeInputLabel="Time:"
+                                                                    dateFormat="MM/dd/yyyy h:mm aa"
+                                                                    showTimeInput
+                                                                    className={`form-control ${errors.departueTime &&
+                                                                        touched.departueTime &&
                                                                         "is-invalid"}`}
                                                                 />
-                                                                {errors.issuance &&
-                                                                touched.issuance ? (
+                                                                {errors.departueTime &&
+                                                                touched.departueTime ? (
                                                                     <div className="invalid-feedback">
                                                                         {
-                                                                            errors.issuance
+                                                                            errors.departueTime
                                                                         }
                                                                     </div>
                                                                 ) : null}
@@ -809,22 +921,33 @@ class Create extends Component {
                                                         </Col>
                                                         <Col md="4">
                                                             <FormGroup>
-                                                                <Label for="expiry">
-                                                                    Expiry
+                                                                <Label for="arrivalTime">
+                                                                    Arrival Date
+                                                                    & Time *
                                                                 </Label>
-                                                                <Field
-                                                                    name="expiry"
-                                                                    type="date"
-                                                                    id="expiry"
-                                                                    className={`form-control ${errors.expiry &&
-                                                                        touched.expiry &&
+                                                                <br />
+                                                                <DatePicker
+                                                                    selected={
+                                                                        values.arrivalTime
+                                                                    }
+                                                                    onChange={
+                                                                        this
+                                                                            .handleArrivalTime
+                                                                    }
+                                                                    name="arrivalTime"
+                                                                    id="arrivalTime"
+                                                                    timeInputLabel="Time:"
+                                                                    dateFormat="MM/dd/yyyy h:mm aa"
+                                                                    showTimeInput
+                                                                    className={`form-control ${errors.arrivalTime &&
+                                                                        touched.arrivalTime &&
                                                                         "is-invalid"}`}
                                                                 />
-                                                                {errors.expiry &&
-                                                                touched.expiry ? (
+                                                                {errors.arrivalTime &&
+                                                                touched.arrivalTime ? (
                                                                     <div className="invalid-feedback">
                                                                         {
-                                                                            errors.expiry
+                                                                            errors.departueTime
                                                                         }
                                                                     </div>
                                                                 ) : null}
@@ -833,7 +956,7 @@ class Create extends Component {
                                                         <Col md="4">
                                                             <FormGroup>
                                                                 <Label for="status">
-                                                                    Status
+                                                                    Status *
                                                                 </Label>
                                                                 <select
                                                                     onChange={
@@ -886,7 +1009,7 @@ class Create extends Component {
                                                     </Row>
 
                                                     <Row>
-                                                        <Col md="4">
+                                                        <Col md="6">
                                                             <FormGroup>
                                                                 <Label for="kin_name">
                                                                     Kin Name
@@ -908,29 +1031,8 @@ class Create extends Component {
                                                                 ) : null}
                                                             </FormGroup>
                                                         </Col>
-                                                        <Col md="4">
-                                                            <FormGroup>
-                                                                <Label for="kin_relation">
-                                                                    Kin Relation
-                                                                </Label>
-                                                                <Field
-                                                                    name="kin_relation"
-                                                                    id="kin_relation"
-                                                                    className={`form-control  ${errors.kin_relation &&
-                                                                        touched.kin_relation &&
-                                                                        "is-invalid"}`}
-                                                                />
-                                                                {errors.kin_relation &&
-                                                                touched.kin_relation ? (
-                                                                    <div className="invalid-feedback">
-                                                                        {
-                                                                            errors.kin_relation
-                                                                        }
-                                                                    </div>
-                                                                ) : null}
-                                                            </FormGroup>
-                                                        </Col>
-                                                        <Col md="4">
+
+                                                        <Col md="6">
                                                             <FormGroup>
                                                                 <Label for="kin_contact">
                                                                     Kin Contact
@@ -958,7 +1060,7 @@ class Create extends Component {
                                                         <Col md="6">
                                                             <FormGroup>
                                                                 <Label for="pickup_add">
-                                                                    Pickup
+                                                                    Origin
                                                                 </Label>
                                                                 <Field
                                                                     id="pickup_add"
@@ -980,7 +1082,7 @@ class Create extends Component {
                                                         <Col md="6">
                                                             <FormGroup>
                                                                 <Label for="dropoff_add">
-                                                                    Dropoff
+                                                                    Destination
                                                                 </Label>
                                                                 <Field
                                                                     name="dropoff_add"
