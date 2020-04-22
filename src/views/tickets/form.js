@@ -7,6 +7,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Alert, Button, Col, FormGroup, Label, Row } from "reactstrap";
 import ticketSchema from "schemas/ticketSchema";
 import { GoogleComponent } from "react-google-location";
+import config from "app/config";
 
 class TicketForm extends Component {
     state = {
@@ -24,8 +25,7 @@ class TicketForm extends Component {
                 },
                 address: {
                     full_address: null,
-                    latitude: 54.2211,
-                    longitude: 54.2211,
+                    city: null,
                 },
             },
             ticket: {
@@ -98,6 +98,14 @@ class TicketForm extends Component {
         if (e.name === "passenger") this.setPassengerFields(option);
     };
 
+    googlePlaceSearch = (e, name, category) => {
+        const { rawData } = this.state;
+        rawData[category][name] = e.place;
+        this.setState({
+            rawData,
+        });
+    };
+
     setPassengerFields(data) {
         const { passengers } = this.props.data;
         const { rawData, _default } = this.state;
@@ -131,6 +139,11 @@ class TicketForm extends Component {
         }
     }
 
+    submitForm = () => {
+        const { rawData } = this.state;
+        this.props.onHandleSubmit(rawData);
+    };
+
     render() {
         const { rawData, _default } = this.state;
         const { vehicles, passengers, alert } = this.props.data;
@@ -141,16 +154,13 @@ class TicketForm extends Component {
                 validationSchema={ticketSchema}
                 onSubmit={(data, { setSubmitting, resetForm }) => {
                     setSubmitting(true);
-                    console.log(data);
-                    // this.setState({ rawData: data });
-                    // this.handleSubmit();
+                    this.submitForm();
                     setSubmitting(false);
                     resetForm();
                 }}
             >
                 {({ values, isSubmitting, errors, touched }) => (
                     <Form id="form">
-                        {console.log(this.state.place)}
                         <div className="form-body">
                             <h4 className="form-section">
                                 <Home size={20} color="#212529" /> Ticket Info
@@ -489,7 +499,7 @@ class TicketForm extends Component {
                             </Row>
 
                             <Row>
-                                <Col md="12">
+                                <Col md="6">
                                     <FormGroup>
                                         <Label for="full_address">
                                             Address
@@ -498,21 +508,28 @@ class TicketForm extends Component {
                                             name="full_address"
                                             id="full_address"
                                             value={
-                                                values.passenger.full_address
+                                                values.passenger.address
+                                                    .full_address
                                             }
                                             disabled={_default.passengerCreate}
                                             className={`form-control ${
-                                                errors.full_address &&
-                                                touched.full_address &&
-                                                "is-invalid"
+                                                getIn(
+                                                    errors,
+                                                    "passenger.address.full_address"
+                                                ) &&
+                                                getIn(
+                                                    touched,
+                                                    "passenger.address.full_address"
+                                                )
+                                                    ? "is-invalid"
+                                                    : null
                                             }`}
                                         />
-                                        {errors.full_address &&
-                                        touched.full_address ? (
-                                            <div className="invalid-feedback">
-                                                {errors.full_address}
-                                            </div>
-                                        ) : null}
+                                        <ErrorMessage
+                                            component="div"
+                                            name="passenger.address.full_address"
+                                            className="danger"
+                                        />
                                     </FormGroup>
                                 </Col>
                             </Row>
@@ -692,7 +709,22 @@ class TicketForm extends Component {
                                 <Col md="6">
                                     <FormGroup>
                                         <Label for="origin">Origin</Label>
-                                        <Field
+                                        <GoogleComponent
+                                            apiKey={config.google_map_key}
+                                            language={"en"}
+                                            country={"country:pk"}
+                                            placeholder={
+                                                "Start typing location"
+                                            }
+                                            onChange={(e) =>
+                                                this.googlePlaceSearch(
+                                                    e,
+                                                    "origin",
+                                                    "ticket"
+                                                )
+                                            }
+                                        />
+                                        {/* <Field
                                             id="origin"
                                             name="ticket.origin"
                                             className={`form-control  ${
@@ -704,7 +736,7 @@ class TicketForm extends Component {
                                                     ? "is-invalid"
                                                     : null
                                             }`}
-                                        />
+                                        /> */}
                                         <ErrorMessage
                                             component="div"
                                             name="ticket.origin"
@@ -718,20 +750,21 @@ class TicketForm extends Component {
                                             Destination
                                         </Label>
                                         <GoogleComponent
-                                            apiKey="AIzaSyCFKdxx60N2-8EpZpNoJStOB5tubT-yE6o"
+                                            apiKey={config.google_map_key}
                                             language={"en"}
-                                            country={"country:pk|country:in"}
-                                            coordinates={true}
+                                            country={"country:pk"}
                                             placeholder={
                                                 "Start typing location"
                                             }
-                                            //   locationBoxStyle={'custom-style'}
-                                            //   locationListStyle={'custom-style-list'}
-                                            onChange={(e) => {
-                                                this.setState({ place: e });
-                                            }}
+                                            onChange={(e) =>
+                                                this.googlePlaceSearch(
+                                                    e,
+                                                    "destination",
+                                                    "ticket"
+                                                )
+                                            }
                                         />
-                                        <Field
+                                        {/* <Field
                                             id="destination"
                                             name="ticket.destination"
                                             className={`form-control  ${
@@ -746,7 +779,7 @@ class TicketForm extends Component {
                                                     ? "is-invalid"
                                                     : null
                                             }`}
-                                        />
+                                        /> */}
                                         <ErrorMessage
                                             component="div"
                                             name="ticket.destination"
