@@ -4,8 +4,8 @@ const ticketSchema = Yup.object({
     ticket: Yup.object({
         booking_type: Yup.string().required("Required"),
         quantity: Yup.number().required("Required").nullable(),
-        vehicle_id: Yup.number().required("Required").nullable(),
-        passenger_id: Yup.number().required("Required").nullable(),
+        vehicle_id: Yup.number().nullable(),
+        passenger_id: Yup.number().nullable(),
         kin_name: Yup.string()
             .max(50, "Too long, max 50 characters")
             .required("Required")

@@ -6,6 +6,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Alert, Button, Col, FormGroup, Label, Row } from "reactstrap";
 import ticketSchema from "schemas/ticketSchema";
+import { GoogleComponent } from "react-google-location";
 
 class TicketForm extends Component {
     state = {
@@ -45,6 +46,7 @@ class TicketForm extends Component {
             STATUS: ["Expired", "Active", "Refunded", "Claimed"],
             passengerCreate: false,
         },
+        place: null,
     };
 
     setFormatMultiSelect = (data) => {
@@ -93,8 +95,41 @@ class TicketForm extends Component {
             });
         }
 
-        console.log(this.state.rawData);
+        if (e.name === "passenger") this.setPassengerFields(option);
     };
+
+    setPassengerFields(data) {
+        const { passengers } = this.props.data;
+        const { rawData, _default } = this.state;
+        if (data) {
+            const passenger = passengers.filter((p) => p.id === data.value);
+
+            rawData.passenger.name = passenger[0].name;
+            rawData.passenger.father_name = passenger[0].father_name;
+            rawData.passenger.cnic = passenger[0].cnic;
+            rawData.passenger.gender = passenger[0].gender;
+            rawData.passenger.contact.phone =
+                passenger[0].primary_contact.phone;
+            rawData.passenger.contact.email =
+                passenger[0].primary_contact.email;
+            rawData.passenger.address.full_address =
+                passenger[0].address.full_address;
+            _default.passengerCreate = true;
+
+            this.setState({ rawData, _default });
+        } else {
+            rawData.passenger.name = "";
+            rawData.passenger.father_name = "";
+            rawData.passenger.cnic = "";
+            rawData.passenger.gender = "";
+            rawData.passenger.contact.phone = "";
+            rawData.passenger.contact.email = "";
+            rawData.passenger.address.full_address = "";
+            _default.passengerCreate = false;
+
+            this.setState({ rawData, _default });
+        }
+    }
 
     render() {
         const { rawData, _default } = this.state;
@@ -115,7 +150,7 @@ class TicketForm extends Component {
             >
                 {({ values, isSubmitting, errors, touched }) => (
                     <Form id="form">
-                        {console.log(errors)}
+                        {console.log(this.state.place)}
                         <div className="form-body">
                             <h4 className="form-section">
                                 <Home size={20} color="#212529" /> Ticket Info
@@ -682,6 +717,20 @@ class TicketForm extends Component {
                                         <Label for="destination">
                                             Destination
                                         </Label>
+                                        <GoogleComponent
+                                            apiKey="AIzaSyAZcVfymJ8t1IatNm0SVg2noKANMszPypA"
+                                            language={"en"}
+                                            country={"country:pk|country:in"}
+                                            coordinates={true}
+                                            placeholder={
+                                                "Start typing location"
+                                            }
+                                            //   locationBoxStyle={'custom-style'}
+                                            //   locationListStyle={'custom-style-list'}
+                                            onChange={(e) => {
+                                                this.setState({ place: e });
+                                            }}
+                                        />
                                         <Field
                                             id="destination"
                                             name="ticket.destination"
