@@ -39,9 +39,7 @@ function setRoleBody(data) {
 
 function setPermissionField(permissions) {
     let _permissions = [];
-    permissions.map((val) => {
-        _permissions.push(val.value);
-    });
+    permissions.map((val) => _permissions.push(val.value));
 
     return _permissions;
 }

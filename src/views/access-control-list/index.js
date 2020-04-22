@@ -12,7 +12,7 @@ class Index extends Component {
         roles: [],
     };
 
-    componentWillMount() {
+    componentDidMount() {
         this.getRoles();
     }
 

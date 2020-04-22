@@ -42,42 +42,6 @@ class Create extends Component {
         return _data;
     }
 
-    /* createRole = async () => {
-        let { _default, multivalues } = this.state;
-        _default.permissions = [];
-        multivalues.map((val) => {
-            _default.permissions.push(val.value);
-        });
-        const requestOptions = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${this.state.auth.token}`,
-            },
-            body: JSON.stringify(_default),
-        };
-        fetch(`${config.base_url}v1/acl/role`, requestOptions)
-            .then(this.handleResponse)
-            .then((response) => {
-                if (response.success === true) {
-                    const alert = {
-                        type: "success",
-                        message: response.message,
-                        display: true,
-                    };
-                    this.setState({ alert });
-                } else {
-                    const alert = {
-                        type: "danger",
-                        message: response.error.message,
-                        display: true,
-                    };
-                    this.setState({ alert });
-                }
-                return response;
-            });
-    }; */
-
     handleSubmit = async (data) => {
         const response = await ACL_GATEWAY.createRole(data);
         if (response) {
