@@ -18,7 +18,7 @@ class Index extends Component {
 
     getRoles = async () => {
         const response = await ACL_GATEWAY.getRoles();
-        this.setState({ roles: response.roles });
+        this.setState({ roles: response.data.roles });
     };
 
     render() {

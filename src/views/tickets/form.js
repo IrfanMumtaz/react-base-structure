@@ -25,7 +25,7 @@ class TicketForm extends Component {
                 },
                 address: {
                     full_address: null,
-                    city: null,
+                    city: 1,
                 },
             },
             ticket: {
@@ -154,6 +154,8 @@ class TicketForm extends Component {
                 validationSchema={ticketSchema}
                 onSubmit={(data, { setSubmitting, resetForm }) => {
                     setSubmitting(true);
+                    console.log(data);
+                    this.setState({ rawData: data });
                     this.submitForm();
                     setSubmitting(false);
                     resetForm();
@@ -505,7 +507,7 @@ class TicketForm extends Component {
                                             Address
                                         </Label>
                                         <Field
-                                            name="full_address"
+                                            name="passenger.full_address"
                                             id="full_address"
                                             value={
                                                 values.passenger.address

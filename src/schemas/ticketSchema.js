@@ -13,8 +13,8 @@ const ticketSchema = Yup.object({
         kin_contact: Yup.number().required("Required").nullable(),
         departureTime: Yup.string().required("Required").nullable(),
         arrivalTime: Yup.string().required("Required").nullable(),
-        origin: Yup.string().required("Required").nullable(),
-        destination: Yup.string().required("Required").nullable(),
+        origin: Yup.string().nullable(),
+        destination: Yup.string().nullable(),
         status: Yup.number().required("Required").nullable(),
     }),
     passenger: Yup.object({
@@ -28,15 +28,13 @@ const ticketSchema = Yup.object({
             .nullable(),
         cnic: Yup.number().required("Required").nullable(),
         gender: Yup.string().required("Required").nullable(),
-        full_address: Yup.string().required("Required").nullable(),
-        city: Yup.number().required("Required").nullable(),
         contact: Yup.object({
             phone: Yup.number().required("Required").nullable(),
             email: Yup.string().required("Required").nullable(),
         }),
         address: Yup.object({
             full_address: Yup.string().required("Required").nullable(),
-            city: Yup.number().required("Required").nullable(),
+            city: Yup.number().nullable(),
         }),
     }),
 });

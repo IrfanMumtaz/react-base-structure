@@ -26,7 +26,9 @@ class Create extends Component {
     getPermissions = async () => {
         const response = await ACL_GATEWAY.getPermissions();
         console.log(response);
-        const permissions = this.setFormatMultiSelect(response.permissions);
+        const permissions = this.setFormatMultiSelect(
+            response.data.permissions
+        );
         this.setState({ permissions });
     };
 
@@ -44,7 +46,7 @@ class Create extends Component {
 
     handleSubmit = async (data) => {
         const response = await ACL_GATEWAY.createRole(data);
-        if (response) {
+        if (response.success) {
             const alert = {
                 type: "success",
                 message: "Role has been successfully created!",
@@ -54,7 +56,7 @@ class Create extends Component {
         } else {
             const alert = {
                 type: "danger",
-                message: "Oops something went wrong!",
+                message: response.error.message,
                 display: true,
             };
             this.setState({ alert });

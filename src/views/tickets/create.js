@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from "react";
-import config from "app/config";
 import ContentHeader from "components/contentHead/contentHeader";
 import { Card, CardBody, Col, Row } from "reactstrap";
 import TicketForm from "./form";
@@ -25,75 +24,27 @@ class Create extends Component {
 
     getPassengers = async () => {
         const response = await PASSENGER_GATEWAY.getPassengers();
-        this.setState({ passengers: response.passengers });
+        this.setState({ passengers: response.data.passengers });
     };
 
     getVehicles = async () => {
         const response = await VEHICLE_GATEWAY.getVehicles();
-        this.setState({ vehicles: response.vehicles });
-    };
-
-    createTicket = async () => {
-        let { formValues } = this.state;
-        if (!formValues.passenger_id) {
-            formValues.contact = {
-                phone: formValues.phone,
-                email: formValues.email,
-            };
-            formValues.address = {
-                full: formValues.full_address,
-                latitude: formValues.latitude,
-                longitude: formValues.longitude,
-                city: 1,
-                state: 1,
-            };
-            const requestOptions = {
-                method: "Post",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${this.state.auth.token}`,
-                },
-                body: JSON.stringify(formValues),
-            };
-            fetch(`${config.base_url}v1/passenger`, requestOptions)
-                .then(this.handleResponse)
-                .then((response) => {
-                    if (response.success === true) {
-                        this.setState({
-                            formValues: {
-                                ...formValues,
-                                passenger_id: response.data.passenger.id,
-                            },
-                        });
-                    } else {
-                        const alert = {
-                            type: "danger",
-                            message: response.error.message,
-                            display: true,
-                        };
-                        this.setState({ alert });
-                    }
-                    this.postCreatePassenger();
-                    return response;
-                });
-        } else {
-            this.postCreatePassenger();
-        }
+        this.setState({ vehicles: response.data.vehicles });
     };
 
     handleSubmit = async (data) => {
         const response = await TICKET_GATEWAY.createTicket(data);
-        if (response) {
+        if (response.success) {
             const alert = {
                 type: "success",
-                message: "Role has been successfully created!",
+                message: "Ticket has been successfully created!",
                 display: true,
             };
             this.setState({ alert });
         } else {
             const alert = {
                 type: "danger",
-                message: "Oops something went wrong!",
+                message: response.error.message,
                 display: true,
             };
             this.setState({ alert });

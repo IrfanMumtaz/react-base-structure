@@ -23,7 +23,7 @@ async function authGateway(METHOD, API, BODY = null) {
             if (response.success !== true) {
                 //error handling
             }
-            return response.data;
+            return response;
         });
 }
 
