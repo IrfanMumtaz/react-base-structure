@@ -139,6 +139,14 @@ class TicketForm extends Component {
         }
     }
 
+    handleDateField = (e, type, category) => {
+        const { rawData } = this.state;
+        rawData[category][type] = e;
+        this.setState({
+            rawData,
+        });
+    };
+
     submitForm = () => {
         const { rawData } = this.state;
         this.props.onHandleSubmit(rawData);
@@ -550,11 +558,17 @@ class TicketForm extends Component {
                                             selected={
                                                 values.ticket.departureTime
                                             }
-                                            onChange={this.handleDepartureTime}
+                                            onChange={(e) =>
+                                                this.handleDateField(
+                                                    e,
+                                                    "departureTime",
+                                                    "ticket"
+                                                )
+                                            }
                                             name="ticket.departueTime"
                                             id="departueTime"
-                                            timeInputLabel="Time:"
-                                            dateFormat="MM/dd/yyyy h:mm aa"
+                                            timeInputLabel="Time:pk"
+                                            dateFormat="yyyy-MM-dd h:mm aa"
                                             showTimeInput
                                             className={`form-control ${
                                                 getIn(
@@ -584,11 +598,17 @@ class TicketForm extends Component {
                                         <br />
                                         <DatePicker
                                             selected={values.ticket.arrivalTime}
-                                            onChange={this.handleArrivalTime}
+                                            onChange={(e) =>
+                                                this.handleDateField(
+                                                    e,
+                                                    "departureTime",
+                                                    "ticket"
+                                                )
+                                            }
                                             name="ticket.arrivalTime"
                                             id="arrivalTime"
-                                            timeInputLabel="Time:"
-                                            dateFormat="MM/dd/yyyy h:mm aa"
+                                            timeInputLabel="Time:pakistan"
+                                            dateFormat="yyyy-MM-dd h:mm aa"
                                             showTimeInput
                                             className={`form-control ${
                                                 getIn(

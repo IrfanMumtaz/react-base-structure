@@ -29,6 +29,8 @@ function createTicket(data) {
 function setTicketBody(data) {
     let _data = data;
     _data.code = generateCode();
+    _data.departure_time = setDateTimeField(data.departureTime);
+    _data.arrival_time = setDateTimeField(data.arrivalTime);
     _data.pickup = {
         full: data.origin,
         latitude: 1,
@@ -47,4 +49,14 @@ function setTicketBody(data) {
 function generateCode() {
     const login = store.getState().authentication.Login;
     return `TKT-${login.user.id}${new Date().getTime()}`;
+}
+
+function setDateTimeField(d) {
+    const _dateTIme = `${d.getFullYear()}-${("0" + (d.getMonth() + 1)).slice(
+        -2
+    )}-${("0" + d.getDate()).slice(-2)} ${("0" + d.getHours()).slice(-2)}:${(
+        "0" + d.getMinutes()
+    ).slice(-2)}:${("0" + d.getSeconds()).slice(-2)}`;
+
+    return _dateTIme;
 }
