@@ -68,6 +68,7 @@ class Create extends Component {
                                             passengers,
                                             alert,
                                         }}
+                                        onlyShow={false}
                                         onHandleSubmit={this.handleSubmit}
                                     />
                                 </div>

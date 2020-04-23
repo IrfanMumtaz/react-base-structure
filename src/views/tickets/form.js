@@ -8,6 +8,8 @@ import { Alert, Button, Col, FormGroup, Label, Row } from "reactstrap";
 import ticketSchema from "schemas/ticketSchema";
 import { GoogleComponent } from "react-google-location";
 import config from "app/config";
+import TICKET_GATEWAY from "gateway/service/ticket";
+import { NavLink } from "react-router-dom";
 
 class TicketForm extends Component {
     state = {
@@ -48,6 +50,87 @@ class TicketForm extends Component {
         },
         place: null,
     };
+
+    componentDidUpdate() {
+        if (this.props.id && this.state._default.passengerCreate === false) {
+            this.getTicket();
+        }
+    }
+
+    getTicket = async () => {
+        const { id } = this.props;
+        const { rawData, _default } = this.state;
+        const response = await TICKET_GATEWAY.getTicket(id);
+        if (response.success) {
+            const { ticket } = response.data;
+            rawData.passenger = this.setTicketPassenger(ticket.passenger);
+            rawData.ticket = this.setTicketData(ticket);
+            rawData._vehicle = this.setDefaultVehicle(ticket.vehicle);
+            rawData._passenger = this.setDefaultPassenger(ticket.passenger);
+            this.setState({ rawData });
+            this.setState({
+                _default: {
+                    ..._default,
+                    passengerCreate: true,
+                },
+            });
+        }
+    };
+
+    setTicketPassenger(data) {
+        let _data = { ...data };
+        console.log(_data);
+        _data.contact = data.primary_contact;
+        delete _data.primary_contact;
+        delete _data.secondary_contacts;
+        delete _data.date_of_birth;
+        delete _data.religion;
+        delete _data.nationality;
+        delete _data.image;
+        delete _data.id;
+
+        return _data;
+    }
+
+    setTicketData(data) {
+        let _data = { ...data };
+        _data.booking_type = "unschedule";
+        _data.quantity = data.quantity;
+        _data.vehicle_id = data.vehicle.id;
+        _data.passenger_id = data.passenger.id;
+        _data.origin = data.origin;
+        _data.destination = data.destination;
+        _data.departureTime = new Date(data.departure_time);
+        _data.arrivalTime = new Date(data.arrival_time);
+        _data.status = data.status;
+        _data.kin_name = data.kin_name;
+        _data.kin_contact = data.kin_contact;
+
+        delete _data.passenger;
+        delete _data.vehicle;
+        delete _data.merchant;
+        return _data;
+    }
+
+    setDefaultVehicle(data) {
+        let _data = [];
+        _data.push({
+            value: data.id,
+            label: data.name,
+        });
+
+        return _data;
+    }
+
+    setDefaultPassenger(data) {
+        let _data = [];
+        _data.push({
+            value: data.id,
+            label: data.name,
+        });
+
+        return _data;
+    }
 
     setFormatMultiSelect = (data) => {
         if (data === undefined || data.length < 1) return [];
@@ -149,6 +232,7 @@ class TicketForm extends Component {
 
     submitForm = () => {
         const { rawData } = this.state;
+        console.log(rawData);
         this.props.onHandleSubmit(rawData);
     };
 
@@ -162,7 +246,9 @@ class TicketForm extends Component {
                 validationSchema={ticketSchema}
                 onSubmit={(data, { setSubmitting, resetForm }) => {
                     setSubmitting(true);
-                    console.log(data);
+                    const { rawData } = this.state;
+                    data.ticket.origin = rawData.ticket.origin;
+                    data.ticket.destination = rawData.ticket.destination;
                     this.setState({ rawData: data });
                     this.submitForm();
                     setSubmitting(false);
@@ -277,6 +363,7 @@ class TicketForm extends Component {
                                             options={this.setFormatMultiSelect(
                                                 vehicles
                                             )}
+                                            value={rawData._vehicle}
                                         />
                                         <ErrorMessage
                                             component="div"
@@ -311,6 +398,7 @@ class TicketForm extends Component {
                                             options={this.setFormatMultiSelect(
                                                 passengers
                                             )}
+                                            value={rawData._passenger}
                                         />
                                         <ErrorMessage
                                             component="div"
@@ -554,7 +642,7 @@ class TicketForm extends Component {
                                     <FormGroup>
                                         <Label for="city">City *</Label>
                                         <select
-                                            // onChange={this.handleChange}
+                                            disabled={_default.passengerCreate}
                                             id="city"
                                             name="passenger.address.city"
                                             className={`form-control ${
@@ -771,13 +859,16 @@ class TicketForm extends Component {
                                 <Col md="6">
                                     <FormGroup>
                                         <Label for="origin">Origin *</Label>
+                                        <Field
+                                            name="ticket.origin"
+                                            value={rawData.ticket.origin}
+                                            type="hidden"
+                                        />
                                         <GoogleComponent
                                             apiKey={config.google_map_key}
                                             language={"en"}
                                             country={"country:pk"}
-                                            placeholder={
-                                                "Start typing location"
-                                            }
+                                            placeholder={"Select Origin"}
                                             onChange={(e) =>
                                                 this.googlePlaceSearch(
                                                     e,
@@ -786,6 +877,7 @@ class TicketForm extends Component {
                                                 )
                                             }
                                         />
+                                        <p>{rawData.ticket.origin}</p>
                                         {/* <Field
                                             id="origin"
                                             name="ticket.origin"
@@ -811,13 +903,16 @@ class TicketForm extends Component {
                                         <Label for="destination">
                                             Destination *
                                         </Label>
+                                        <Field
+                                            name="ticket.destination"
+                                            value={rawData.ticket.destination}
+                                            type="hidden"
+                                        />
                                         <GoogleComponent
                                             apiKey={config.google_map_key}
                                             language={"en"}
                                             country={"country:pk"}
-                                            placeholder={
-                                                "Start typing location"
-                                            }
+                                            placeholder={"Select Destination"}
                                             onChange={(e) =>
                                                 this.googlePlaceSearch(
                                                     e,
@@ -826,6 +921,7 @@ class TicketForm extends Component {
                                                 )
                                             }
                                         />
+                                        <p>{rawData.ticket.destination}</p>
                                         {/* <Field
                                             id="destination"
                                             name="ticket.destination"
@@ -852,21 +948,39 @@ class TicketForm extends Component {
                             </Row>
                         </div>
                         <div className="form-actions">
-                            <Button
-                                color="warning"
-                                className="mr-1"
-                                type="submit"
-                            >
-                                <CheckSquare size={16} color="#FFF" /> Cancel
-                            </Button>
+                            {this.props.onlyShow && (
+                                <NavLink
+                                    to={`/tickets/edit/${rawData.ticket.id}`}
+                                    className="item"
+                                    activeclassname="active"
+                                >
+                                    <Button color="warning">
+                                        <CheckSquare size={16} color="#FFF" />{" "}
+                                        Edit
+                                    </Button>
+                                </NavLink>
+                            )}
+                            {this.props.onlyShow === false && (
+                                <div>
+                                    <Button
+                                        color="warning"
+                                        className="mr-1"
+                                        type="submit"
+                                    >
+                                        <CheckSquare size={16} color="#FFF" />{" "}
+                                        Cancel
+                                    </Button>
 
-                            <Button
-                                color="primary"
-                                type="submit"
-                                disabled={false}
-                            >
-                                <CheckSquare size={16} color="#FFF" /> Save
-                            </Button>
+                                    <Button
+                                        color="primary"
+                                        type="submit"
+                                        disabled={false}
+                                    >
+                                        <CheckSquare size={16} color="#FFF" />{" "}
+                                        Save
+                                    </Button>
+                                </div>
+                            )}
                             {alert.display && (
                                 <Alert color={alert.type}>
                                     {alert.message}

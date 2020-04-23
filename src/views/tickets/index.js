@@ -2,7 +2,6 @@ import React, { Component, Fragment } from "react";
 import CustomTabs from "components/tabs/customTabs";
 import ContentHeader from "components/contentHead/contentHeader";
 import { Card, CardBody, Row, Col } from "reactstrap";
-import config from "app/config";
 import Filter from "./filter";
 import VEHICLE_GATEWAY from "gateway/service/vehicle";
 import PASSENGER_GATEWAY from "gateway/service/passenger";
