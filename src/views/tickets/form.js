@@ -328,7 +328,9 @@ class TicketForm extends Component {
                             <Row>
                                 <Col md="6">
                                     <FormGroup>
-                                        <Label for="name">Passenger Name</Label>
+                                        <Label for="name">
+                                            Passenger Name *
+                                        </Label>
                                         <Field
                                             name="passenger.name"
                                             id="name"
@@ -355,7 +357,7 @@ class TicketForm extends Component {
                                 <Col md="6">
                                     <FormGroup>
                                         <Label for="father_name">
-                                            Passenger Father Name
+                                            Passenger Father Name *
                                         </Label>
                                         <Field
                                             name="passenger.father_name"
@@ -387,7 +389,7 @@ class TicketForm extends Component {
                             <Row>
                                 <Col md="6">
                                     <FormGroup>
-                                        <Label for="cnic">CNIC</Label>
+                                        <Label for="cnic">CNIC *</Label>
                                         <Field
                                             name="passenger.cnic"
                                             id="cnic"
@@ -413,7 +415,9 @@ class TicketForm extends Component {
                                 </Col>
                                 <Col md="6">
                                     <FormGroup>
-                                        <Label for="modgenderel">Gender</Label>
+                                        <Label for="modgenderel">
+                                            Gender *
+                                        </Label>
                                         <select
                                             onChange={this.handleChange}
                                             id="gender"
@@ -446,7 +450,9 @@ class TicketForm extends Component {
                             <Row>
                                 <Col md="6">
                                     <FormGroup>
-                                        <Label for="phone">Primary Phone</Label>
+                                        <Label for="phone">
+                                            Primary Phone *
+                                        </Label>
                                         <Field
                                             name="passenger.contact.phone"
                                             id="phone"
@@ -477,7 +483,9 @@ class TicketForm extends Component {
                                 </Col>
                                 <Col md="6">
                                     <FormGroup>
-                                        <Label for="email">Primary Email</Label>
+                                        <Label for="email">
+                                            Primary Email *
+                                        </Label>
                                         <Field
                                             name="passenger.contact.email"
                                             id="email"
@@ -512,10 +520,10 @@ class TicketForm extends Component {
                                 <Col md="6">
                                     <FormGroup>
                                         <Label for="full_address">
-                                            Address
+                                            Address *
                                         </Label>
                                         <Field
-                                            name="passenger.full_address"
+                                            name="passenger.address.full_address"
                                             id="full_address"
                                             value={
                                                 values.passenger.address
@@ -538,6 +546,38 @@ class TicketForm extends Component {
                                         <ErrorMessage
                                             component="div"
                                             name="passenger.address.full_address"
+                                            className="danger"
+                                        />
+                                    </FormGroup>
+                                </Col>
+                                <Col md="6">
+                                    <FormGroup>
+                                        <Label for="city">City *</Label>
+                                        <select
+                                            // onChange={this.handleChange}
+                                            id="city"
+                                            name="passenger.address.city"
+                                            className={`form-control ${
+                                                getIn(
+                                                    errors,
+                                                    "passenger.address.city"
+                                                ) &&
+                                                getIn(
+                                                    touched,
+                                                    "passenger.address.city"
+                                                )
+                                                    ? "is-invalid"
+                                                    : null
+                                            }`}
+                                        >
+                                            <option value="-1" disabled>
+                                                Select City
+                                            </option>
+                                            <option value="1">Karachi</option>
+                                        </select>
+                                        <ErrorMessage
+                                            component="div"
+                                            name="ticket.status"
                                             className="danger"
                                         />
                                     </FormGroup>
@@ -672,7 +712,7 @@ class TicketForm extends Component {
                             <Row>
                                 <Col md="6">
                                     <FormGroup>
-                                        <Label for="kin_name">Kin Name</Label>
+                                        <Label for="kin_name">Kin Name *</Label>
                                         <Field
                                             id="kin_name"
                                             name="ticket.kin_name"
@@ -700,7 +740,7 @@ class TicketForm extends Component {
                                 <Col md="6">
                                     <FormGroup>
                                         <Label for="kin_contact">
-                                            Kin Contact
+                                            Kin Contact *
                                         </Label>
                                         <Field
                                             id="kin_contact"
@@ -730,7 +770,7 @@ class TicketForm extends Component {
                             <Row>
                                 <Col md="6">
                                     <FormGroup>
-                                        <Label for="origin">Origin</Label>
+                                        <Label for="origin">Origin *</Label>
                                         <GoogleComponent
                                             apiKey={config.google_map_key}
                                             language={"en"}
@@ -769,7 +809,7 @@ class TicketForm extends Component {
                                 <Col md="6">
                                     <FormGroup>
                                         <Label for="destination">
-                                            Destination
+                                            Destination *
                                         </Label>
                                         <GoogleComponent
                                             apiKey={config.google_map_key}
