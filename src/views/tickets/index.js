@@ -1,14 +1,17 @@
 import React, { Component, Fragment } from "react";
-import CustomTabs from "../../components/tabs/customTabs";
-import ContentHeader from "../../components/contentHead/contentHeader";
+import CustomTabs from "components/tabs/customTabs";
+import ContentHeader from "components/contentHead/contentHeader";
 import { Card, CardBody, Row, Col } from "reactstrap";
-import axios from "axios";
-import config from "../../app/config";
+import config from "app/config";
 import Filter from "./filter";
+import VEHICLE_GATEWAY from "gateway/service/vehicle";
+import PASSENGER_GATEWAY from "gateway/service/passenger";
+import TICKET_GATEWAY from "gateway/service/ticket";
+import MERCHANT_GATEWAY from "gateway/service/merchant";
 
 // Table exmple pages
 import DataTable from "./table";
-import { store } from "../../redux/storeConfig/store";
+import { store } from "redux/storeConfig/store";
 
 class Index extends Component {
     state = {
@@ -45,118 +48,68 @@ class Index extends Component {
         this.getMerchants();
     }
 
-    getPassengers = async () => {
-        const requestOptions = {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${this.state.auth.token}`,
-            },
-        };
+    setFormatMultiSelect = (data) => {
+        if (data === undefined || data.length < 1) return [];
 
-        fetch(`${config.base_url}v1/passenger`, requestOptions)
-            .then(this.handleResponse)
-            .then((response) => {
-                if (response.success === true) {
-                    const { passengers } = response.data;
-                    const passengersData = passengers.map((p) => ({
-                        value: p.id,
-                        label: `${p.name} (${p.cnic})`,
-                        type: "passengers",
-                    }));
-                    const { filter } = this.state;
-                    this.setState({ passengers });
-                    this.setState({
-                        filter: { ...filter, passengers: passengersData },
-                    });
-                }
-                return response;
+        let _data = [];
+        data.map((d) =>
+            _data.push({
+                value: d.id,
+                label: d.name,
+            })
+        );
+
+        return _data;
+    };
+
+    getPassengers = async () => {
+        const response = await PASSENGER_GATEWAY.getPassengers();
+        if (response.success) {
+            const { passengers } = response.data;
+            const passengersData = this.setFormatMultiSelect(passengers);
+            const { filter } = this.state;
+            this.setState({ passengers });
+            this.setState({
+                filter: { ...filter, passengers: passengersData },
             });
+        }
     };
 
     getMerchants = async () => {
-        const requestOptions = {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${this.state.auth.token}`,
-            },
-        };
-
-        fetch(`${config.base_url}v1/merchant`, requestOptions)
-            .then(this.handleResponse)
-            .then((response) => {
-                if (response.success === true) {
-                    const { merchants } = response.data;
-                    const merchantsData = merchants.map((p) => ({
-                        value: p.id,
-                        label: `${p.name} (${p.cnic})`,
-                        type: "merchants",
-                    }));
-                    const { filter } = this.state;
-                    this.setState({ merchants });
-                    this.setState({
-                        filter: { ...filter, merchants: merchantsData },
-                    });
-                }
-                return response;
+        const response = await MERCHANT_GATEWAY.getMerchants();
+        if (response.success) {
+            const { merchants } = response.data;
+            const merchantsData = this.setFormatMultiSelect(merchants);
+            const { filter } = this.state;
+            this.setState({ merchants });
+            this.setState({
+                filter: { ...filter, merchants: merchantsData },
             });
+        }
     };
 
-    handleResponse(response) {
-        return response.text().then((text) => {
-            return text && JSON.parse(text);
-        });
-    }
-
-    getVehicles = () => {
-        const requestOptions = {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${this.state.auth.token}`,
-            },
-        };
-
-        fetch(`${config.base_url}v1/vehicle`, requestOptions)
-            .then(this.handleResponse)
-            .then((response) => {
-                if (response.success === true) {
-                    const { vehicles } = response.data;
-                    const vehiclesData = vehicles.map((p) => ({
-                        value: p.id,
-                        label: `${p.name}`,
-                        type: "vehicles",
-                    }));
-                    const { filter } = this.state;
-                    this.setState({ vehicles });
-                    this.setState({
-                        filter: { ...filter, vehicles: vehiclesData },
-                    });
-                }
-                return response;
+    getVehicles = async () => {
+        const response = await VEHICLE_GATEWAY.getVehicles();
+        if (response.success) {
+            const { vehicles } = response.data;
+            const vehiclesData = this.setFormatMultiSelect(vehicles);
+            const { filter } = this.state;
+            this.setState({ vehicles });
+            this.setState({
+                filter: { ...filter, vehicles: vehiclesData },
             });
+        }
     };
 
     getTickets = async () => {
-        const param = {
-            url: config.base_url + "v1/ticket",
-            headers: {
-                "Content-Type": "Application/Json",
-                Authorization: `Bearer ${this.state.auth.token}`,
-            },
-        };
-        const res = await axios.get(param.url, { headers: param.headers });
-        if (res.data.success) {
-            const { tickets } = res.data.data;
+        const response = await TICKET_GATEWAY.getTickets();
+        if (response.success) {
+            const { tickets } = response.data;
             this.setState({ tickets, ticketsData: tickets });
-        } else {
-            console.log("operation failed");
         }
     };
 
     filterMultiSelect = (options, e) => {
-        console.log(options, e);
         let { postFilter } = this.state;
         if (options.length > 0) {
             const keys = options.map((value) => value.value);
@@ -236,8 +189,8 @@ class Index extends Component {
             "Code",
             "Passenger Name",
             "Merchant Name",
-            "Issuance",
-            "Expiry",
+            "Departure",
+            "Arrival",
             "Status",
             "Action",
         ];

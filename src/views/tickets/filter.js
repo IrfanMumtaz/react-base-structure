@@ -83,7 +83,7 @@ class Filter extends Component {
                                     isMulti={true}
                                 />
                             </Col>
-                            <Col sm="4">
+                            {/* <Col sm="4">
                                 <Label for="f_issuance">Issuance Date</Label>
                                 <Input
                                     type="date"
@@ -100,7 +100,7 @@ class Filter extends Component {
                                     id="f_expiry"
                                     onChange={this.handleInput}
                                 />
-                            </Col>
+                            </Col> */}
                         </Row>
                     </CardBody>
                 </Card>
