@@ -37,11 +37,13 @@ class TicketForm extends Component {
                 passenger_id: null,
                 origin: null,
                 destination: null,
-                departureTime: new Date(),
-                arrivalTime: new Date(),
                 status: 1,
                 kin_name: null,
                 kin_contact: null,
+            },
+            date_time: {
+                departureTime: new Date(),
+                arrivalTime: new Date(),
             },
         },
         _default: {
@@ -376,6 +378,13 @@ class TicketForm extends Component {
                                 <Col md="6">
                                     <FormGroup>
                                         <Label for="passenger">Passenger</Label>
+                                        <Field
+                                            name="ticket.passenger_id"
+                                            id="passenger_id"
+                                            category="ticket"
+                                            value={values.ticket.passenger_id}
+                                            type="hidden"
+                                        />
                                         <Select
                                             className={`basic-single ${
                                                 getIn(
@@ -484,6 +493,7 @@ class TicketForm extends Component {
                                             category="passenger"
                                             value={values.passenger.cnic}
                                             disabled={_default.passengerCreate}
+                                            maxlength="13"
                                             className={`form-control ${
                                                 getIn(
                                                     errors,
@@ -684,16 +694,16 @@ class TicketForm extends Component {
                                         <br />
                                         <DatePicker
                                             selected={
-                                                values.ticket.departureTime
+                                                values.date_time.departureTime
                                             }
                                             onChange={(e) =>
                                                 this.handleDateField(
                                                     e,
                                                     "departureTime",
-                                                    "ticket"
+                                                    "date_time"
                                                 )
                                             }
-                                            name="ticket.departueTime"
+                                            name="date_time.departueTime"
                                             id="departueTime"
                                             timeInputLabel="Time:pk"
                                             dateFormat="yyyy-MM-dd h:mm aa"
@@ -701,11 +711,11 @@ class TicketForm extends Component {
                                             className={`form-control ${
                                                 getIn(
                                                     errors,
-                                                    "ticket.departuerTime"
+                                                    "date_time.departuerTime"
                                                 ) &&
                                                 getIn(
                                                     touched,
-                                                    "ticket.departuerTime"
+                                                    "date_time.departuerTime"
                                                 )
                                                     ? "is-invalid"
                                                     : null
@@ -713,7 +723,7 @@ class TicketForm extends Component {
                                         />
                                         <ErrorMessage
                                             component="div"
-                                            name="ticket.departureTime"
+                                            name="date_time.departureTime"
                                             className="danger"
                                         />
                                     </FormGroup>
@@ -725,15 +735,17 @@ class TicketForm extends Component {
                                         </Label>
                                         <br />
                                         <DatePicker
-                                            selected={values.ticket.arrivalTime}
+                                            selected={
+                                                values.date_time.arrivalTime
+                                            }
                                             onChange={(e) =>
                                                 this.handleDateField(
                                                     e,
-                                                    "departureTime",
-                                                    "ticket"
+                                                    "arrivalTime",
+                                                    "date_time"
                                                 )
                                             }
-                                            name="ticket.arrivalTime"
+                                            name="date_time.arrivalTime"
                                             id="arrivalTime"
                                             timeInputLabel="Time:pakistan"
                                             dateFormat="yyyy-MM-dd h:mm aa"
@@ -741,11 +753,11 @@ class TicketForm extends Component {
                                             className={`form-control ${
                                                 getIn(
                                                     errors,
-                                                    "ticket.arrivalTime"
+                                                    "date_time.arrivalTime"
                                                 ) &&
                                                 getIn(
                                                     touched,
-                                                    "ticket.arrivalTime"
+                                                    "date_time.arrivalTime"
                                                 )
                                                     ? "is-invalid"
                                                     : null
@@ -753,7 +765,7 @@ class TicketForm extends Component {
                                         />
                                         <ErrorMessage
                                             component="div"
-                                            name="ticket.arrivalTIme"
+                                            name="date_time.arrivalTIme"
                                             className="danger"
                                         />
                                     </FormGroup>

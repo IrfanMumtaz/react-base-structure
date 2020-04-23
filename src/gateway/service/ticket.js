@@ -22,7 +22,7 @@ function getTicket(id) {
 }
 
 function createTicket(data) {
-    let { ticket, passenger } = data;
+    let { ticket, passenger, date_time } = data;
     let tickets = [];
     if (!ticket.passenger_id) {
         passenger = PASSENGER_GATEWAY.createPassenger(passenger);
@@ -33,27 +33,26 @@ function createTicket(data) {
 
     for (let i = 0; i < ticket.quantity; i++) {
         ticket.code = generateCode();
-        const _data = setTicketBody(ticket, passenger_id);
+        let _data = setTicketBody(ticket, date_time, passenger_id);
         tickets.push(GATEWAY.authGateway("POST", V1.tickets, _data));
     }
     return tickets[0];
 }
 
 function updateTicket(data, id) {
-    let { ticket } = data;
+    let { ticket, date_time } = data;
     const path = `${V1.tickets}/${id}`;
-    const _data = setTicketBody(ticket, ticket.passenger_id);
+    const _data = setTicketBody(ticket, date_time, ticket.passenger_id);
     return GATEWAY.authGateway("PUT", path, _data);
 }
 
-function setTicketBody(data, passenger_id) {
-    console.log(data);
-    let _data = data;
+function setTicketBody(data, date_time, passenger_id) {
+    let _data = { ...data };
     delete _data._vehicle;
     delete _data._passenger;
     _data.passenger_id = passenger_id;
-    _data.departure_time = setDateTimeField(data.departureTime);
-    _data.arrival_time = setDateTimeField(data.arrivalTime);
+    _data.departure_time = setDateTimeField(date_time.departureTime);
+    _data.arrival_time = setDateTimeField(date_time.arrivalTime);
 
     return JSON.stringify(_data);
 }

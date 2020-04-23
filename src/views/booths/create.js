@@ -22,9 +22,7 @@ const formSchema = Yup.object().shape({
         .required("Required"),
     merchant_id: Yup.number().required("Required"),
     phone: Yup.number().required("Required"),
-    full: Yup.string()
-        .max(190, "Address is too long")
-        .required("Required"),
+    full: Yup.string().max(190, "Address is too long").required("Required"),
 });
 
 class Create extends Component {
@@ -109,6 +107,8 @@ class Create extends Component {
                         display: true,
                     };
                     this.setState({ alert });
+                    window.location.href =
+                        "/booths/edit/" + response.data.booth.id;
                 } else {
                     const alert = {
                         type: "danger",
@@ -192,9 +192,11 @@ class Create extends Component {
                                                                 <Field
                                                                     name="name"
                                                                     id="name"
-                                                                    className={`form-control ${errors.name &&
+                                                                    className={`form-control ${
+                                                                        errors.name &&
                                                                         touched.name &&
-                                                                        "is-invalid"}`}
+                                                                        "is-invalid"
+                                                                    }`}
                                                                 />
                                                                 {errors.name &&
                                                                 touched.name ? (
@@ -217,9 +219,11 @@ class Create extends Component {
                                                                     }
                                                                     id="merchant_id"
                                                                     name="merchant_id"
-                                                                    className={`form-control ${errors.merchant_id &&
+                                                                    className={`form-control ${
+                                                                        errors.merchant_id &&
                                                                         touched.merchant_id &&
-                                                                        "is-invalid"}`}
+                                                                        "is-invalid"
+                                                                    }`}
                                                                 >
                                                                     <option
                                                                         value="0"
@@ -264,9 +268,11 @@ class Create extends Component {
                                                                 <Field
                                                                     id="phone"
                                                                     name="phone"
-                                                                    className={`form-control ${errors.phone &&
+                                                                    className={`form-control ${
+                                                                        errors.phone &&
                                                                         touched.phone &&
-                                                                        "is-invalid"}`}
+                                                                        "is-invalid"
+                                                                    }`}
                                                                 />
                                                                 {errors.phone &&
                                                                 touched.phone ? (
@@ -286,9 +292,11 @@ class Create extends Component {
                                                                 <Field
                                                                     name="full"
                                                                     id="full_address"
-                                                                    className={`form-control ${errors.full &&
+                                                                    className={`form-control ${
+                                                                        errors.full &&
                                                                         touched.full &&
-                                                                        "is-invalid"}`}
+                                                                        "is-invalid"
+                                                                    }`}
                                                                 />
                                                                 {errors.full &&
                                                                 touched.full ? (

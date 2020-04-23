@@ -11,8 +11,6 @@ const ticketSchema = Yup.object({
             .required("Required")
             .nullable(),
         kin_contact: Yup.number().required("Required").nullable(),
-        departureTime: Yup.string().required("Required").nullable(),
-        arrivalTime: Yup.string().required("Required").nullable(),
         origin: Yup.string().nullable(),
         destination: Yup.string().nullable(),
         status: Yup.number().required("Required").nullable(),
@@ -36,6 +34,10 @@ const ticketSchema = Yup.object({
             full_address: Yup.string().required("Required").nullable(),
             city: Yup.number().nullable(),
         }),
+    }),
+    date_time: Yup.object({
+        departureTime: Yup.string().required("Required").nullable(),
+        arrivalTime: Yup.string().required("Required").nullable(),
     }),
 });
 

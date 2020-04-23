@@ -53,6 +53,7 @@ class Create extends Component {
                 display: true,
             };
             this.setState({ alert });
+            window.location.href = "/acl/roles/edit/" + response.data.role.id;
         } else {
             const alert = {
                 type: "danger",

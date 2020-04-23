@@ -41,6 +41,7 @@ class Create extends Component {
                 display: true,
             };
             this.setState({ alert });
+            window.location.href = "/tickets/edit/" + response.data.ticket.id;
         } else {
             const alert = {
                 type: "danger",

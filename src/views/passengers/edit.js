@@ -191,7 +191,7 @@ class Create extends Component {
                                                         <Col md="6">
                                                             <FormGroup>
                                                                 <Label for="cnic">CNIC</Label>
-                                                                <Field id="cnic"   name="cnic" value={values.cnic} className={`form-control ${errors.cnic && touched.cnic && 'is-invalid'}`} />
+                                                                <Field id="cnic"   name="cnic" maxlength="13" value={values.cnic} className={`form-control ${errors.cnic && touched.cnic && 'is-invalid'}`} />
                                                                 {errors.cnic && touched.cnic ? <div className="invalid-feedback">{errors.cnic}</div> : null}
                                                             </FormGroup>
                                                         </Col>
