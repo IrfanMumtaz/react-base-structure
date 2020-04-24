@@ -1,10 +1,13 @@
 import React from "react";
-import { Button, Table } from "reactstrap";
-import { Eye, Edit, Trash } from "react-feather";
+import { Table } from "reactstrap";
+import { Eye, Edit, Trash, FileText } from "react-feather";
 import { NavLink } from "react-router-dom";
 export default class DataTable extends React.Component {
+    state = {
+        id: 22,
+    };
     render() {
-        const { heading, data, misc } = this.props;
+        const { heading, data, misc, onPrintTicket } = this.props;
         return (
             <Table striped>
                 <thead>
@@ -50,6 +53,21 @@ export default class DataTable extends React.Component {
                                 >
                                     <Trash className="mr-1"></Trash>
                                 </NavLink>
+
+                                <button
+                                    style={{
+                                        color: "#008487",
+                                        textDecoration: "none",
+                                        border: "none",
+                                        background: "transparent",
+                                        fontSize: "1rem",
+                                        fontWeight: 300,
+                                    }}
+                                    className="mr-1"
+                                    onClick={(e) => onPrintTicket(d.id)}
+                                >
+                                    <FileText className="mr-1"></FileText>
+                                </button>
                             </td>
                         </tr>
                     ))}

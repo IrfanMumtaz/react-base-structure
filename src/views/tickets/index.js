@@ -10,6 +10,7 @@ import MERCHANT_GATEWAY from "gateway/service/merchant";
 
 // Table exmple pages
 import DataTable from "./table";
+import TicketToPrint from "./print";
 import { store } from "redux/storeConfig/store";
 
 class Index extends Component {
@@ -38,6 +39,8 @@ class Index extends Component {
             issuance: null,
             expiry: null,
         },
+        printTicket: null,
+        isOpen: false,
     };
 
     componentDidMount() {
@@ -183,6 +186,16 @@ class Index extends Component {
         this.setState({ tickets: ticketsData });
     }
 
+    printTIcket = (id) => {
+        const { tickets } = this.state;
+        const ticket = tickets.filter((t) => t.id === id);
+        this.setState({
+            isOpen: !this.state.isOpen,
+            printTicket: ticket,
+        });
+        console.log(ticket);
+    };
+
     render() {
         const heading = [
             "Code",
@@ -213,6 +226,7 @@ class Index extends Component {
                                             heading={heading}
                                             data={this.state.tickets}
                                             misc={{ link: "tickets" }}
+                                            onPrintTicket={this.printTIcket}
                                         />
                                     }
                                 />
@@ -220,6 +234,13 @@ class Index extends Component {
                         </Card>
                     </Col>
                 </Row>
+                <TicketToPrint
+                    show={this.state.isOpen}
+                    onClose={this.printTIcket}
+                    data={this.state.printTicket}
+                >
+                    Here's some content for the modal
+                </TicketToPrint>
             </Fragment>
         );
     }
