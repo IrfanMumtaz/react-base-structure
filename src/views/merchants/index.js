@@ -20,6 +20,7 @@ class Index extends Component {
 
     getMerchants = async () => {
         const response = await MERCHANT_GATEWAY.getMerchants();
+        console.log(response);
         if (response.success) {
             const { merchants } = response.data;
             this.setState({ merchants });
