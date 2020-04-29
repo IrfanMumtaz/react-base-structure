@@ -160,7 +160,6 @@ class TicketForm extends Component {
 
         rawData[category][name] = value;
         this.setState({ rawData });
-        console.log(this.state.rawData);
     };
 
     handleMultiSelect = (option, e) => {
@@ -234,7 +233,6 @@ class TicketForm extends Component {
 
     submitForm = () => {
         const { rawData } = this.state;
-        console.log(rawData);
         this.props.onHandleSubmit(rawData);
     };
 
@@ -675,7 +673,7 @@ class TicketForm extends Component {
                                         </select>
                                         <ErrorMessage
                                             component="div"
-                                            name="ticket.status"
+                                            name="address.city"
                                             className="danger"
                                         />
                                     </FormGroup>

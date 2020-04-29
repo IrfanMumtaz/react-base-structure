@@ -13,14 +13,14 @@ function getMerchants() {
 }
 
 function createMerchant(data) {
-    // const _data = setPassengerBody(data);
-    // return GATEWAY.authGateway("POST", V1.merchants, _data);
+    const _data = setMerchantBody(data);
+    return GATEWAY.authGateway("POST", V1.merchants, _data);
 }
 
-function setPassengerBody(data) {
-    let _data = data;
+function setMerchantBody(data) {
+    let _data = { ...data };
     _data.address.latitude = 1;
-    _data.address.latitude = 1;
+    _data.address.longitude = 1;
     _data.address.city = 1;
     _data.address.state = 1;
 

@@ -6,7 +6,7 @@ import MERCHANT_GATEWAY from "gateway/service/merchant";
 
 // Table exmple pages
 import MerchantTable from "./merchantTable";
-import { store } from "../../redux/storeConfig/store";
+import { store } from "redux/storeConfig/store";
 
 class Index extends Component {
     state = {
@@ -37,6 +37,7 @@ class Index extends Component {
             "Action",
         ];
 
+        const { merchants, alert } = this.state;
         return (
             <Fragment>
                 <ContentHeader>Merchant List </ContentHeader>
@@ -50,7 +51,7 @@ class Index extends Component {
                                     TabContent1={
                                         <MerchantTable
                                             heading={heading}
-                                            data={this.state.merchants}
+                                            data={{ merchants, alert }}
                                             misc={{ link: "merchants" }}
                                         />
                                     }
