@@ -6,6 +6,7 @@ import merchantSchema from "schemas/merchantSchema";
 import MERCHANT_GATEWAY from "gateway/service/merchant";
 import config from "app/config";
 import { GoogleComponent } from "react-google-location";
+import { NavLink } from "react-router-dom";
 
 class MerchantForm extends Component {
     constructor(props) {
@@ -74,7 +75,6 @@ class MerchantForm extends Component {
 
         delete _data.primary_contact;
         delete _data.secondary_contacts;
-        delete _data.id;
 
         return _data;
     }
@@ -526,16 +526,39 @@ class MerchantForm extends Component {
                         </div>
 
                         <div className="form-actions">
-                            <Button
-                                color="warning"
-                                className="mr-1"
-                                onClick={this.handleResetForm}
-                            >
-                                <X size={16} color="#FFF" /> Cancel
-                            </Button>
-                            <Button color="primary" type="submit">
-                                <CheckSquare size={16} color="#FFF" /> Save
-                            </Button>
+                            {this.props.onlyShow && (
+                                <NavLink
+                                    to={`/merchants/edit/${rawData.id}`}
+                                    className="item"
+                                    activeclassname="active"
+                                >
+                                    <Button color="warning">
+                                        <CheckSquare size={16} color="#FFF" />{" "}
+                                        Edit
+                                    </Button>
+                                </NavLink>
+                            )}
+                            {this.props.onlyShow === false && (
+                                <div>
+                                    <Button
+                                        color="warning"
+                                        className="mr-1"
+                                        type="submit"
+                                    >
+                                        <CheckSquare size={16} color="#FFF" />{" "}
+                                        Cancel
+                                    </Button>
+
+                                    <Button
+                                        color="primary"
+                                        type="submit"
+                                        disabled={false}
+                                    >
+                                        <CheckSquare size={16} color="#FFF" />{" "}
+                                        Save
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                         {alert.display && (
                             <Alert color={alert.type}>{alert.message}</Alert>
