@@ -3,6 +3,7 @@ import { Alert, Button, Col, FormGroup, Label, Row } from "reactstrap";
 import { CheckSquare, User, X, Phone, Home } from "react-feather";
 import { Field, Formik, Form, getIn, ErrorMessage } from "formik";
 import merchantSchema from "schemas/merchantSchema";
+import MERCHANT_GATEWAY from "gateway/service/merchant";
 import config from "app/config";
 import { GoogleComponent } from "react-google-location";
 
@@ -27,10 +28,55 @@ class MerchantForm extends Component {
                     s_email: null,
                 },
                 address: {
-                    full: null,
+                    full_address: null,
                 },
             },
+            _default: {
+                merchantCreate: false,
+            },
         };
+    }
+
+    componentDidMount() {
+        if (this.props.id && this.state._default.merchantCreate === false) {
+            this.getMerchant();
+        }
+    }
+
+    getMerchant = async () => {
+        const { id } = this.props;
+        let { rawData, _default } = this.state;
+        const response = await MERCHANT_GATEWAY.getMerchant(id);
+        if (response.success) {
+            const { merchant } = response.data;
+            rawData = this.setMerchantaData(merchant);
+            this.setState({ rawData });
+            this.setState({
+                _default: {
+                    ..._default,
+                    merchantCreate: true,
+                },
+            });
+        }
+    };
+
+    setMerchantaData(data) {
+        let _data = { ...data };
+        _data.contact = data.primary_contact;
+        _data.contact.s_phone =
+            data.secondary_contacts.length > 0
+                ? data.secondary_contacts[0].phone
+                : null;
+        _data.contact.s_email =
+            data.secondary_contacts.length > 0
+                ? data.secondary_contacts[0].email
+                : null;
+
+        delete _data.primary_contact;
+        delete _data.secondary_contacts;
+        delete _data.id;
+
+        return _data;
     }
 
     handleChange = (e) => {
@@ -61,9 +107,9 @@ class MerchantForm extends Component {
         return (
             <Formik
                 initialValues={rawData}
+                enableReinitialize={true}
                 validationSchema={merchantSchema}
                 onSubmit={(data, { setSubmitting }) => {
-                    console.log(data);
                     setSubmitting(true);
                     this.setState({ rawData: data });
                     this.submitForm();
@@ -72,7 +118,6 @@ class MerchantForm extends Component {
             >
                 {({ values, isSubmitting, errors, touched, handleChange }) => (
                     <Form id="merchantForm">
-                        {console.log(errors)}
                         <div className="form-body">
                             <h4 className="form-section">
                                 <User size={20} color="#212529" /> Merchant Info
@@ -150,11 +195,11 @@ class MerchantForm extends Component {
                                 </Col>
                                 <Col md="6">
                                     <FormGroup>
-                                        <Label for="model">Gender *</Label>
+                                        <Label for="gender">Gender *</Label>
                                         <select
-                                            onChange={handleChange}
-                                            id="type"
-                                            name="type"
+                                            onChange={this.handleChange}
+                                            id="gender"
+                                            name="gender"
                                             className={`form-control ${
                                                 getIn(errors, "gender") &&
                                                 getIn(touched, "gender")
@@ -444,10 +489,10 @@ class MerchantForm extends Component {
                                                 )
                                             }
                                         />
-                                        <p>{rawData.address.full}</p>
+                                        <p>{rawData.address.full_address}</p>
                                         <ErrorMessage
                                             component="div"
-                                            name="address.full"
+                                            name="address.full_address"
                                             className="danger"
                                         />
                                     </FormGroup>

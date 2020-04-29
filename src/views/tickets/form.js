@@ -81,7 +81,6 @@ class TicketForm extends Component {
 
     setTicketPassenger(data) {
         let _data = { ...data };
-        console.log(_data);
         _data.contact = data.primary_contact;
         delete _data.primary_contact;
         delete _data.secondary_contacts;

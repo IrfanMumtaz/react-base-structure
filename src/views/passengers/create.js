@@ -70,7 +70,7 @@ class Create extends Component {
             email: formValues.email,
         };
         formValues.address = {
-            full: formValues.full_address,
+            full_address: formValues.full_address,
             latitude: formValues.latitude,
             longitude: formValues.longitude,
             city: 1,

@@ -1,6 +1,4 @@
 import React, { Component, Fragment } from "react";
-import config from "app/config";
-import { store } from "redux/storeConfig/store";
 import ContentHeader from "components/contentHead/contentHeader";
 import { Card, CardBody, Col, Row } from "reactstrap";
 import TicketForm from "./form";

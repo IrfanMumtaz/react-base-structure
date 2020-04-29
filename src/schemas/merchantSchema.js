@@ -19,9 +19,7 @@ const merchantSchema = Yup.object().shape({
         .max(50, "Too long, max 50 characters")
         .required("Required"),
     joining: Yup.date().required("Required"),
-    password: Yup.string()
-        .max(50, "Too long, max 50 characters")
-        .required("Required"),
+    password: Yup.string().max(50, "Too long, max 50 characters"),
     contact: Yup.object({
         phone: Yup.number().required("Required"),
         email: Yup.string().email().required("Required"),
@@ -29,7 +27,9 @@ const merchantSchema = Yup.object().shape({
         s_email: Yup.string().email().nullable(),
     }),
     address: Yup.object({
-        full: Yup.string().required("Required").max(190, "Address too long"),
+        full_address: Yup.string()
+            .required("Required")
+            .max(190, "Address too long"),
     }),
 });
 
