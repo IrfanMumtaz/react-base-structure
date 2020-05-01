@@ -373,6 +373,7 @@ class Create extends Component {
                                                                 <Field
                                                                     name="phone"
                                                                     id="phone"
+                                                                    maxLength="11"
                                                                     value={
                                                                         values.phone
                                                                     }

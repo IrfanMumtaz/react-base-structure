@@ -323,6 +323,7 @@ class Create extends Component {
                                                                 <Field
                                                                     name="phone"
                                                                     id="phone"
+                                                                    maxLength="11"
                                                                     className={`form-control ${
                                                                         errors.phone &&
                                                                         touched.phone &&
